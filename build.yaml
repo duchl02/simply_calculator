@@ -1,0 +1,14 @@
+targets:
+  $default:
+    sources:
+      exclude:
+        - lib/i18n/**/*.g.dart
+        - lib/i18n/**/*.translations.g.dart
+        - lib/i18n/**/*.slang.dart
+
+    builders:
+      auto_route_generator:auto_route_generator:
+        options:
+          enable_cached_builds: true
+        generate_for:
+          - lib/**_screen.dart
