@@ -89,7 +89,7 @@ class AppFilledButton extends StatelessWidget {
               isEnabled
                   ? textColor ?? colorScheme.onPrimary
                   : colorScheme.onSurfaceVariant.withOpacity(0.6),
-          elevation: 2,
+          elevation: 1,
           shadowColor: colorScheme.shadow.withOpacity(0.2),
           padding: padding ?? EdgeInsets.all(12.r),
           minimumSize: Size(width ?? 36, height ?? 36),

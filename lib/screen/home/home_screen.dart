@@ -5,6 +5,7 @@ import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/core/extensions/string_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/di/di.dart';
+import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
 
 @RoutePage()
@@ -21,6 +22,39 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isDegreeMode = true;
   double get scaleTextSize => isSimple ? 1.5 : 1.0;
   final _parser = GrammarParser();
+  bool isEndCalculation = false;
+  late TextEditingController _expressionController;
+  String result = '';
+  String resultCur = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _expressionController = TextEditingController(text: expression);
+    _expressionController.addListener(_updateExpressionFromController);
+  }
+
+  @override
+  void dispose() {
+    _expressionController.removeListener(_updateExpressionFromController);
+    _expressionController.dispose();
+    super.dispose();
+  }
+
+  void _updateExpressionFromController() {
+    if (_expressionController.text != expression) {
+      setState(() {
+        expression = _expressionController.text;
+      });
+    }
+    calculator();
+  }
+
+  void _updateControllerFromExpression() {
+    if (_expressionController.text != expression) {
+      _expressionController.text = expression;
+    }
+  }
 
   final List<String> allButtons = [
     'φ',
@@ -79,9 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
     ',',
     '=',
   ];
-  String result = '';
   @override
   Widget build(BuildContext context) {
+    _updateControllerFromExpression();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       appBar: AppBar(
@@ -93,23 +128,72 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             flex: isSimple ? 4 : 3,
             child: Container(
-              decoration: BoxDecoration(color: context.colorScheme.surface),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: context.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      expression.replaceAll('.', ','),
-                      style: TextStyle(fontSize: 28),
+                  Flexible(
+                    flex: 1,
+                    child: TextField(
+                      controller: _expressionController,
+                      textAlign: TextAlign.end,
+                      expands: true,
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.bottom,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                        filled: false,
+                        hintText: '0',
+                        hintStyle: TextStyle(
+                          fontSize: 70,
+                          color: context.colorScheme.onSurface.withOpacity(0.5),
+                        ),
+                      ),
+                      style: context.textTheme.displayMedium?.copyWith(
+                        fontSize:
+                            isEndCalculation
+                                ? 40
+                                : expression.length > 10
+                                ? 40
+                                : 70,
+                        height: 1,
+                        color: context.colorScheme.onSurface.withOpacity(
+                          isEndCalculation ? 0.5 : 1,
+                        ),
+                      ),
+                      keyboardType: TextInputType.none,
+                      enableInteractiveSelection: true,
+                      onTap: () {
+                        if (isEndCalculation == true) {
+                          setState(() {
+                            isEndCalculation = false;
+                            result = '';
+                          });
+                        }
+                      },
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "= ${result.formatAsFixed().replaceAll('.', ',')}",
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Text(
+                    (isEndCalculation ? result : resultCur).isEmpty
+                        ? ''
+                        : "= ${(isEndCalculation ? result : resultCur).trim().formatAsFixed().replaceAll('.', ',')}",
+                    style: context.textTheme.headlineMedium?.copyWith(
+                      fontSize:
+                          isEndCalculation
+                              ? expression.length > 10
+                                  ? 40
+                                  : 70
+                              : 40,
+                      fontWeight: FontWeight.normal,
+                      color: context.colorScheme.onSurface.withOpacity(
+                        isEndCalculation ? 1 : 0.5,
                       ),
                     ),
                   ),
@@ -144,12 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Text(
-                      isSimple ? 'Nâng cao' : 'Cơ bản',
+                      isSimple ? t.scientific : t.basic,
                       key: ValueKey<bool>(isSimple),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.textTheme.titleMedium?.copyWith(),
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -158,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     foregroundColor:
                         Theme.of(context).colorScheme.onPrimaryContainer,
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    elevation: 2,
+                    elevation: 1,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -178,10 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Text(
                         isDegreeMode ? 'Deg' : 'Rad',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: context.textTheme.titleMedium?.copyWith(),
                       ),
                     ),
                 Spacer(),
@@ -275,34 +353,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void onButtonPressed(String btnText) {
     setState(() {
+      if (isEndCalculation) {
+        expression = '';
+        result = '';
+        isEndCalculation = false;
+      }
       switch (btnText) {
         case 'C':
           expression = '';
           result = '';
           break;
         case '=':
-          try {
-            // Chuyển đổi biểu thức sang dạng Dart hiểu được
-            final parsedExpression = expression
-                .replaceAll('×', '*')
-                .replaceAll('÷', '/')
-                .replaceAll('π', '3.1415926535')
-                .replaceAll('e', '2.7182818284')
-                .replaceAll('√', 'sqrt')
-                .replaceAll('∛', 'cbrt')
-                .replaceAll('^', 'pow');
-
-            // Dùng math_expressions để tính
-            final exp = _parser.parse(parsedExpression);
-            final context = ContextModel();
-            final eval = exp.evaluate(EvaluationType.REAL, context);
-            result = eval.toString();
-          } catch (e) {
-            result = '';
-          }
+          calculator(fromEqual: true);
           break;
-        case '( )': // Xử lý khi nhấn nút ngoặc kép
-          // Đếm số lượng ngoặc mở và đóng trong biểu thức
+        case '( )':
           int openCount = 0;
           int closeCount = 0;
 
@@ -353,6 +417,50 @@ class _HomeScreenState extends State<HomeScreen> {
           expression += btnText;
       }
     });
+  }
+
+  void calculator({bool? fromEqual}) {
+    if (fromEqual == true) {
+      if (isEndCalculation) {
+        return;
+      }
+      isEndCalculation = true;
+      try {
+        final parsedExpression = expression
+            .replaceAll('×', '*')
+            .replaceAll('÷', '/')
+            .replaceAll('π', '3.1415926535')
+            .replaceAll('e', '2.7182818284')
+            .replaceAll('√', 'sqrt')
+            .replaceAll('∛', 'cbrt')
+            .replaceAll('^', 'pow');
+
+        final exp = _parser.parse(parsedExpression);
+        final context = ContextModel();
+        final eval = exp.evaluate(EvaluationType.REAL, context);
+        result = eval.toString();
+      } catch (e) {
+        result = 'ERROR';
+      }
+    } else {
+      try {
+        final parsedExpression = expression
+            .replaceAll('×', '*')
+            .replaceAll('÷', '/')
+            .replaceAll('π', '3.1415926535')
+            .replaceAll('e', '2.7182818284')
+            .replaceAll('√', 'sqrt')
+            .replaceAll('∛', 'cbrt')
+            .replaceAll('^', 'pow');
+
+        final exp = _parser.parse(parsedExpression);
+        final context = ContextModel();
+        final eval = exp.evaluate(EvaluationType.REAL, context);
+        resultCur = eval.toString();
+      } catch (e) {
+        resultCur = '';
+      }
+    }
   }
 
   void onTapDegRad() {
@@ -417,7 +525,7 @@ class AllButton extends StatelessWidget {
                 : isAction
                 ? colorScheme.secondary
                 : colorScheme.onSurfaceVariant,
-        elevation: btnText == '=' ? 4 : 1,
+        elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side:
@@ -435,6 +543,7 @@ class AllButton extends StatelessWidget {
 
   Widget _buildButtonChild(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     if (btnText == '-' || btnText == '÷' || btnText == '×' || btnText == '+') {
       if (btnText == '-') {
@@ -451,7 +560,7 @@ class AllButton extends StatelessWidget {
         scale: 4,
         child: Text(
           btnText,
-          style: TextStyle(
+          style: textTheme.labelSmall?.copyWith(
             fontSize: 10 * scaleTextSize,
             fontWeight: FontWeight.w300,
             height: 0,
@@ -473,9 +582,22 @@ class AllButton extends StatelessWidget {
         textColor = colorScheme.onSurfaceVariant;
       }
 
+      // Sử dụng các style từ textTheme
+      TextStyle? baseStyle;
+
+      if (btnText == '=') {
+        baseStyle = textTheme.titleLarge;
+      } else if (btnText == 'C') {
+        baseStyle = textTheme.titleMedium;
+      } else if ('0123456789'.contains(btnText)) {
+        baseStyle = textTheme.headlineSmall;
+      } else {
+        baseStyle = textTheme.bodyLarge;
+      }
+
       return Text(
         btnText,
-        style: TextStyle(
+        style: baseStyle?.copyWith(
           fontSize: 30 * scaleTextSize,
           fontWeight: btnText == '=' ? FontWeight.bold : FontWeight.normal,
           height: 0,

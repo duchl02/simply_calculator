@@ -1,3 +1,7 @@
 {
-    "done": "Hoàn tất"
+  "get_started": "Bắt đầu",
+  "error": "Lỗi",
+  "basic": "Cơ bản",
+  "scientific": "Khoa học",
+  "done": "Hoàn tất"
 }

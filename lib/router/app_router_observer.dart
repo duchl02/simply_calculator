@@ -8,29 +8,33 @@ class AppRouterObserver extends AutoRouterObserver {
   void didPush(Route route, Route? previousRoute) {
     super.didPush(route, previousRoute);
     LogX.log('${previousRoute?.settings.name} push to ${route.settings.name}');
-    AnalyticsUtil.logEvent('route_push', {
-      'route': route.settings.name ?? 'unknown_route',
-      'previous_route': previousRoute?.settings.name ?? 'unknown_route',
-    });
+    AnalyticsUtil.logScreen(
+      screenName: route.settings.name ?? 'unknown_route',
+      params: {
+        'previous_route': previousRoute?.settings.name ?? 'unknown_route',
+      },
+    );
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
     LogX.log('${previousRoute?.settings.name} pop to ${route.settings.name}');
-    AnalyticsUtil.logEvent('route_pop', {
-      'route': route.settings.name ?? 'unknown_route',
-      'previous_route': previousRoute?.settings.name ?? 'unknown_route',
-    });
+    AnalyticsUtil.logScreen(
+      screenName: route.settings.name ?? 'unknown_route',
+      params: {
+        'previous_route': previousRoute?.settings.name ?? 'unknown_route',
+      },
+    );
   }
 
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
     LogX.log('${newRoute?.settings.name} replace ${oldRoute?.settings.name}');
-    AnalyticsUtil.logEvent('route_replace', {
-      'old_route': oldRoute?.settings.name ?? 'unknown_route',
-      'new_route': newRoute?.settings.name ?? 'unknown_route',
-    });
+    AnalyticsUtil.logScreen(
+      screenName: newRoute?.settings.name ?? 'unknown_route',
+      params: {'old_route': oldRoute?.settings.name ?? 'unknown_route'},
+    );
   }
 }
