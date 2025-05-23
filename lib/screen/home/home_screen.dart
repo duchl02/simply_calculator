@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late TextEditingController _expressionController;
   String result = '';
   String resultCur = '';
+  TextSelection _lastKnownSelection = const TextSelection.collapsed(offset: 0);
 
   @override
   void initState() {
@@ -69,8 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
     '∛',
     '√',
     '^',
-    'C',
-    '( )',
+    '(',
+    ')', // Thay đổi từ '( )' thành ')'
     '%',
     '÷',
     '7',
@@ -85,15 +86,15 @@ class _HomeScreenState extends State<HomeScreen> {
     '2',
     '3',
     '+',
-    '00',
+    'C',
     '0',
-    ',',
+    '.',
     '=',
   ];
 
   final List<String> basicButtons = [
-    'C',
-    '( )',
+    '(',
+    ')', // Thay đổi từ '( )' thành ')'
     '%',
     '÷',
     '7',
@@ -108,9 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
     '2',
     '3',
     '+',
-    '00',
+    'C',
     '0',
-    ',',
+    '.',
     '=',
   ];
   @override
@@ -138,52 +139,80 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Flexible(
                     flex: 1,
-                    child: TextField(
-                      controller: _expressionController,
-                      textAlign: TextAlign.end,
-                      expands: true,
-                      maxLines: null,
-                      textAlignVertical: TextAlignVertical.bottom,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        isDense: true,
-                        filled: false,
-                        hintText: '0',
-                        hintStyle: TextStyle(
-                          fontSize: 70,
-                          color: context.colorScheme.onSurface.withOpacity(0.5),
+                    child: Stack(
+                      children: [
+                        // Layer 1: Actual editable TextField (transparent text)
+                        TextField(
+                          controller: _expressionController,
+                          textAlign: TextAlign.end,
+                          expands: true,
+                          maxLines: null,
+                          textAlignVertical: TextAlignVertical.bottom,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                            isDense: true,
+                            filled: false,
+                            hintText: '0',
+                            hintStyle: TextStyle(
+                              fontSize:
+                                  isEndCalculation
+                                      ? 40
+                                      : expression.length > 10
+                                      ? 40
+                                      : 70,
+                              color: context.colorScheme.onSurface.withOpacity(
+                                0.5,
+                              ),
+                            ),
+                          ),
+                          style: context.textTheme.displayMedium?.copyWith(
+                            fontSize:
+                                isEndCalculation
+                                    ? 40
+                                    : expression.length > 10
+                                    ? 40
+                                    : 70,
+                            height: 1,
+                            color: Colors.transparent, // Make text invisible
+                          ),
+                          keyboardType: TextInputType.none,
+                          enableInteractiveSelection: true,
+                          onTap: () {
+                            if (isEndCalculation == true) {
+                              setState(() {
+                                isEndCalculation = false;
+                                result = '';
+                              });
+                            }
+                            _updateSelectionPosition();
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              expression = value;
+                              calculator();
+                              _updateSelectionPosition();
+                            });
+                          },
                         ),
-                      ),
-                      style: context.textTheme.displayMedium?.copyWith(
-                        fontSize:
-                            isEndCalculation
-                                ? 40
-                                : expression.length > 10
-                                ? 40
-                                : 70,
-                        height: 1,
-                        color: context.colorScheme.onSurface.withOpacity(
-                          isEndCalculation ? 0.5 : 1,
+
+                        // Layer 2: Colored brackets display (non-editable)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: _buildExpressionWithColoredBrackets(),
+                            ),
+                          ),
                         ),
-                      ),
-                      keyboardType: TextInputType.none,
-                      enableInteractiveSelection: true,
-                      onTap: () {
-                        if (isEndCalculation == true) {
-                          setState(() {
-                            isEndCalculation = false;
-                            result = '';
-                          });
-                        }
-                      },
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     (isEndCalculation ? result : resultCur).isEmpty
                         ? ''
-                        : "= ${(isEndCalculation ? result : resultCur).trim().formatAsFixed().replaceAll('.', ',')}",
+                        : '= ${(isEndCalculation ? result : resultCur).trim().formatAsFixed()}',
                     style: context.textTheme.headlineMedium?.copyWith(
                       fontSize:
                           isEndCalculation
@@ -276,11 +305,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     //       .id,
                     // );
 
-                    expression =
-                        expression.length > 1
-                            ? expression.substring(0, expression.length - 1)
-                            : '';
-                    setState(() {});
+                    {
+                      if (isEndCalculation) {
+                        isEndCalculation = false;
+                        result = '';
+                      }
+                      expression =
+                          expression.length > 1
+                              ? expression.substring(0, expression.length - 1)
+                              : '';
+                      setState(() {});
+                    }
                   },
                   onLongPress: () {
                     setState(() {
@@ -357,16 +392,51 @@ class _HomeScreenState extends State<HomeScreen> {
         expression = '';
         result = '';
         isEndCalculation = false;
+        _lastKnownSelection = const TextSelection.collapsed(offset: 0);
       }
+
+      // Lấy vị trí con trỏ hiện tại
+      final currentSelection = _expressionController.selection;
+      final selectionStart =
+          currentSelection.start >= 0
+              ? currentSelection.start
+              : expression.length;
+      final selectionEnd =
+          currentSelection.end >= 0 ? currentSelection.end : expression.length;
+
+      String newExpression = '';
+      int newCursorPosition = selectionStart;
+
       switch (btnText) {
         case 'C':
-          expression = '';
+          newExpression = '';
           result = '';
+          newCursorPosition = 0;
           break;
         case '=':
           calculator(fromEqual: true);
+          return; // Không cần cập nhật vị trí con trỏ
+        case '(':
+          // Kiểm tra cần thêm dấu nhân không
+          if (selectionStart > 0 &&
+              !'+-×÷('.contains(expression[selectionStart - 1])) {
+            // Chèn '×(' tại vị trí con trỏ
+            newExpression =
+                expression.substring(0, selectionStart) +
+                '×(' +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + 2; // Sau '×('
+          } else {
+            // Chèn '(' tại vị trí con trỏ
+            newExpression =
+                expression.substring(0, selectionStart) +
+                '(' +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + 1; // Sau '('
+          }
           break;
-        case '( )':
+        case ')':
+          // Đếm ngoặc mở và ngoặc đóng trong biểu thức
           int openCount = 0;
           int closeCount = 0;
 
@@ -375,13 +445,17 @@ class _HomeScreenState extends State<HomeScreen> {
             if (expression[i] == ')') closeCount++;
           }
 
-          // Kiểm tra xem nên thêm dấu ngoặc nào
           if (openCount > closeCount) {
-            // Số ngoặc mở nhiều hơn, thêm ngoặc đóng
-            expression += ')';
+            // Chèn ')' tại vị trí con trỏ
+            newExpression =
+                expression.substring(0, selectionStart) +
+                ')' +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + 1; // Sau ')'
           } else {
-            // Số ngoặc bằng nhau hoặc ít hơn, thêm ngoặc mở
-            expression += '(';
+            // Không đủ ngoặc mở, giữ nguyên biểu thức
+            newExpression = expression;
+            newCursorPosition = selectionStart;
           }
           break;
         case 'sin':
@@ -391,32 +465,103 @@ class _HomeScreenState extends State<HomeScreen> {
         case 'ln':
         case '√':
         case '∛':
-          expression += '$btnText(';
+          // Chèn hàm tại vị trí con trỏ
+          newExpression =
+              expression.substring(0, selectionStart) +
+              '$btnText(' +
+              expression.substring(selectionEnd);
+          newCursorPosition =
+              selectionStart + btnText.length + 1; // Sau 'func('
           break;
         case '!':
-          expression += '!';
-          break;
         case 'φ':
-          expression += '1.6180339887';
-          break;
-        case '⌫': // Xử lý khi nhấn nút xóa từng ký tự
-          if (expression.isNotEmpty) {
-            expression = expression.substring(0, expression.length - 1);
-            // Nếu đã xóa hết biểu thức, xóa luôn kết quả
-            if (expression.isEmpty) {
-              result = '';
+        case '.':
+          // Xử lý như các trường hợp đặc biệt khác
+          if (btnText == 'φ') {
+            newExpression =
+                expression.substring(0, selectionStart) +
+                '1.6180339887' +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + 11; // Sau số phi
+          } else if (btnText == '.') {
+            // Kiểm tra xem đã có dấu chấm trong số hiện tại chưa
+            bool hasDecimalInCurrentNumber = false;
+            // Kiểm tra từ vị trí hiện tại trở về trước
+            for (int i = selectionStart - 1; i >= 0; i--) {
+              if (!RegExp(r'[0-9]').hasMatch(expression[i])) {
+                break; // Không phải số, dừng
+              }
+              if (expression[i] == '.') {
+                hasDecimalInCurrentNumber = true;
+                break;
+              }
             }
-          }
-          break;
-        case ',':
-          if (!expression.contains(',')) {
-            expression += '.';
+            // Kiểm tra từ vị trí hiện tại trở về sau
+            for (int i = selectionStart; i < expression.length; i++) {
+              if (!RegExp(r'[0-9]').hasMatch(expression[i])) {
+                break; // Không phải số, dừng
+              }
+              if (expression[i] == '.') {
+                hasDecimalInCurrentNumber = true;
+                break;
+              }
+            }
+
+            if (!hasDecimalInCurrentNumber) {
+              newExpression =
+                  expression.substring(0, selectionStart) +
+                  '.' +
+                  expression.substring(selectionEnd);
+              newCursorPosition = selectionStart + 1; // Sau '.'
+            } else {
+              newExpression = expression;
+              newCursorPosition = selectionStart;
+            }
+          } else {
+            newExpression =
+                expression.substring(0, selectionStart) +
+                btnText +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + btnText.length;
           }
           break;
         default:
-          expression += btnText;
+          try {
+            // Chèn ký tự thường tại vị trí con trỏ
+            newExpression =
+                expression.substring(0, selectionStart) +
+                btnText +
+                expression.substring(selectionEnd);
+            newCursorPosition = selectionStart + btnText.length;
+          } catch (e) {
+            // Nếu có lỗi xảy ra, giữ nguyên biểu thức
+            newExpression = expression;
+            newCursorPosition = selectionStart;
+          }
+      }
+
+      try {
+        // Cập nhật biểu thức và vị trí con trỏ
+        expression = newExpression;
+        _updateControllerFromExpression();
+
+        _expressionController.selection = TextSelection.collapsed(
+          offset: newCursorPosition,
+        );
+        _lastKnownSelection = _expressionController.selection;
+      } catch (e) {
+        isEndCalculation = false;
+        result = '';
+        expression = '';
+        resultCur = '';
+        _lastKnownSelection = const TextSelection.collapsed(offset: 0);
+        expression += btnText;
       }
     });
+  }
+
+  void _updateSelectionPosition() {
+    _lastKnownSelection = _expressionController.selection;
   }
 
   void calculator({bool? fromEqual}) {
@@ -485,6 +630,68 @@ class _HomeScreenState extends State<HomeScreen> {
       expression = newExpression;
     });
   }
+
+  Widget _buildExpressionWithColoredBrackets() {
+    if (expression.isEmpty) {
+      return const SizedBox();
+    }
+
+    final baseStyle = context.textTheme.displayMedium?.copyWith(
+      fontSize:
+          isEndCalculation
+              ? 40
+              : expression.length > 10
+              ? 40
+              : 70,
+      height: 1,
+      color: context.colorScheme.onSurface.withOpacity(
+        isEndCalculation ? 0.5 : 1,
+      ),
+    );
+
+    if (!expression.contains('(') && !expression.contains(')')) {
+      // Không có dấu ngoặc, hiển thị bình thường
+      return Text(expression, style: baseStyle, textAlign: TextAlign.end);
+    }
+
+    // Đơn giản hóa: Chỉ sử dụng một màu cho tất cả dấu ngoặc
+    // vì không có ngoặc lồng ngoặc
+    final bracketColor = Colors.blue;
+
+    // Xây dựng spans với màu sắc
+    final List<TextSpan> spans = [];
+    String currentSegment = '';
+
+    for (int i = 0; i < expression.length; i++) {
+      if (expression[i] == '(' || expression[i] == ')') {
+        // Thêm đoạn văn bản trước dấu ngoặc
+        if (currentSegment.isNotEmpty) {
+          spans.add(TextSpan(text: currentSegment, style: baseStyle));
+          currentSegment = '';
+        }
+
+        // Thêm dấu ngoặc với màu
+        spans.add(
+          TextSpan(
+            text: expression[i],
+            style: baseStyle?.copyWith(
+              color: bracketColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      } else {
+        currentSegment += expression[i];
+      }
+    }
+
+    // Thêm phần còn lại
+    if (currentSegment.isNotEmpty) {
+      spans.add(TextSpan(text: currentSegment, style: baseStyle));
+    }
+
+    return RichText(textAlign: TextAlign.end, text: TextSpan(children: spans));
+  }
 }
 
 class AllButton extends StatelessWidget {
@@ -502,7 +709,11 @@ class AllButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isOperator = '÷×-+'.contains(btnText);
     final isAction =
-        btnText == 'C' || btnText == '=' || btnText == '( )' || btnText == '%';
+        btnText == 'C' ||
+        btnText == '=' ||
+        btnText == ')' ||
+        btnText == '%' ||
+        btnText == '(';
     final colorScheme = Theme.of(context).colorScheme;
 
     return ElevatedButton(
@@ -546,6 +757,7 @@ class AllButton extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     if (btnText == '-' || btnText == '÷' || btnText == '×' || btnText == '+') {
+      // Xử lý các toán tử như cũ
       if (btnText == '-') {
         return Container(
           width: 20 * scaleTextSize,
@@ -574,7 +786,7 @@ class AllButton extends StatelessWidget {
         textColor = colorScheme.onPrimaryContainer;
       } else if (btnText == 'C') {
         textColor = colorScheme.error;
-      } else if (btnText == '( )' || btnText == '%') {
+      } else if (btnText == '(' || btnText == ')' || btnText == '%') {
         textColor = colorScheme.secondary;
       } else if ('0123456789'.contains(btnText)) {
         textColor = colorScheme.onSurfaceVariant;
