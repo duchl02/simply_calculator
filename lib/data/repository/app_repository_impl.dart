@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:simply_calculator/data/local/app_local_data_source.dart';
+import 'package:simply_calculator/data/shared_preferences/app_local_data_source.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 
 @Injectable(as: AppRepository)

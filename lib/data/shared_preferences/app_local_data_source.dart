@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simply_calculator/constants/app_const.dart';
-import 'package:simply_calculator/data/local/local_storage_key.dart';
+import 'package:simply_calculator/data/shared_preferences/local_storage_key.dart';
 
 @injectable
 class AppLocalDataSource {

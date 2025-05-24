@@ -1,16 +1,20 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hive/hive.dart';
+import 'package:simply_calculator/data/hive/hive_constants.dart';
 
-part 'calc_history_model.freezed.dart';
 part 'calc_history_model.g.dart';
 
-@freezed
-abstract class CalcHistoryModel with _$CalcHistoryModel {
-  const factory CalcHistoryModel({
-    required String expression,
-    required String result,
-    required DateTime timestamp,
-  }) = _CalcHistoryModel;
+@HiveType(typeId: HiveConstants.calcTypeId)
+class CalcHistoryModel extends HiveObject {
+  @HiveField(0)
+  String expression;
+  @HiveField(1)
+  String result;
+  @HiveField(2)
+  String id;
 
-  factory CalcHistoryModel.fromJson(Map<String, dynamic> json) =>
-      _$CalcHistoryModelFromJson(json);
+  CalcHistoryModel({
+    required this.expression,
+    required this.result,
+    required this.id,
+  });
 }

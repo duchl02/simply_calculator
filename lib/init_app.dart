@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:simply_calculator/di/di.dart' as di;
 
 class AppInitializer {
@@ -9,5 +10,6 @@ class AppInitializer {
       DeviceOrientation.portraitDown,
     ]);
     await di.configureInjection();
+    await Hive.initFlutter();
   }
 }

@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     appCubit.initial();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 0), () {
-        context.router.replace(const HomeRoute());
+        context.router.replace(const CalculatorRoute());
       });
     });
   }
