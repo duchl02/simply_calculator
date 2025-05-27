@@ -28,12 +28,14 @@ class CalculatorService {
       final exp = _parser.parse(parsedExpression);
       final context = ContextModel();
       final eval = exp.evaluate(EvaluationType.REAL, context);
-      final CalcHistoryModel calcLastHistory = CalcHistoryModel(
-        expression: expression,
-        result: eval.toString(),
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-      );
-      getIt<CalcLocalData>().putById(calcLastHistory);
+      if (fromEqual) {
+        final CalcHistoryModel calcLastHistory = CalcHistoryModel(
+          expression: expression,
+          result: eval.toString(),
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+        );
+        getIt<CalcLocalData>().putById(calcLastHistory);
+      }
       return eval.toString();
     } catch (e) {
       return fromEqual ? 'ERROR' : '';

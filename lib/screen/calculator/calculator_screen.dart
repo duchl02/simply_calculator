@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
@@ -7,6 +8,7 @@ import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/screen/calculator/calculator_service.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_display.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_keypad.dart';
+import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
 import 'dart:math' as math;
 
@@ -91,34 +93,30 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             onPressed: () async {
               final List<CalcHistoryModel> historyList =
                   await getIt<CalcLocalData>().getAll();
-              await showModalBottomSheet(
+              await AppBottomSheet.show(
                 context: context,
-                builder: (context) {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    child: ListView.builder(
-                      itemCount: historyList.length,
-                      itemBuilder: (context, index) {
-                        final history = historyList[index];
-                        return ListTile(
-                          title: Text(history.expression),
-                          subtitle: Text(history.result),
-                          onTap: () {
-                            setState(() {
-                              expression = history.expression;
-                              result = history.result;
-                              isEndCalculation = true;
-                              _expressionController.text = expression;
-                              _lastKnownSelection =
-                                  const TextSelection.collapsed(offset: 0);
-                            });
-                            AutoRouter.of(context).pop();
-                          },
-                        );
+                child: ListView.builder(
+                  itemCount: historyList.length,
+                  itemBuilder: (context, index) {
+                    final history = historyList.reversed.elementAt(index);
+                    return ListTile(
+                      title: Text(history.expression),
+                      subtitle: Text(history.result),
+                      onTap: () {
+                        setState(() {
+                          expression = history.expression;
+                          result = history.result;
+                          isEndCalculation = true;
+                          _expressionController.text = expression;
+                          _lastKnownSelection = const TextSelection.collapsed(
+                            offset: 0,
+                          );
+                        });
+                        AutoRouter.of(context).pop();
                       },
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -126,7 +124,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       ),
       body: Column(
         children: [
-          // Calculator Display
           Expanded(
             flex: isSimple ? 4 : 3,
             child: CalculatorDisplay(
@@ -335,12 +332,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           // Calculator Keypad
           Expanded(
             flex: isSimple ? 6 : 7,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0).copyWith(top: 0),
-              child: CalculatorKeypad(
-                isSimple: isSimple,
-                onButtonPressed: onButtonPressed,
-                scaleTextSize: scaleTextSize,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0).copyWith(top: 0),
+                child: CalculatorKeypad(
+                  isSimple: isSimple,
+                  onButtonPressed: onButtonPressed,
+                  scaleTextSize: scaleTextSize,
+                ),
               ),
             ),
           ),

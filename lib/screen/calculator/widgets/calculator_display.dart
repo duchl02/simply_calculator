@@ -92,7 +92,7 @@ class CalculatorDisplay extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
+          SelectableText(
             (isEndCalculation ? result : resultCur).isEmpty
                 ? ''
                 : '= ${(isEndCalculation ? result : resultCur).trim().formatAsFixed()}',
@@ -119,7 +119,7 @@ class CalculatorDisplay extends StatelessWidget {
 
   double _getResultSize() {
     return isEndCalculation
-        ? expression.length > 10
+        ? result.length > 10
             ? 40
             : 70
         : 40;
