@@ -1,13 +1,12 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:simply_calculator/core/style/flex_theme/flex_scheme.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 
 part 'app_state.dart';
-part 'app_cubit.freezed.dart';
 
 @singleton
 class AppCubit extends Cubit<AppState> {

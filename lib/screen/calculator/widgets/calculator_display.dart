@@ -79,7 +79,9 @@ class CalculatorDisplay extends StatelessWidget {
                           fontSize: _getFontSize(),
                           height: 1,
                           color: context.colorScheme.onSurface.withOpacity(
-                            isEndCalculation ? 0.5 : 1,
+                            isEndCalculation
+                                ? 0.5
+                                : 1, // Giảm độ mờ khi kết quả được hiển thị
                           ),
                         ),
                         bracketColor: Colors.blue,

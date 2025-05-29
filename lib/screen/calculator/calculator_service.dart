@@ -32,7 +32,7 @@ class CalculatorService {
         final CalcHistoryModel calcLastHistory = CalcHistoryModel(
           expression: expression,
           result: eval.toString(),
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          id: DateTime.now().millisecondsSinceEpoch,
         );
         getIt<CalcLocalData>().putById(calcLastHistory);
       }

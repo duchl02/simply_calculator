@@ -47,7 +47,7 @@ class AppFilledButton extends StatelessWidget {
       return DecoratedBox(
         decoration: BoxDecoration(
           gradient: isEnabled ? gradient : null,
-          borderRadius: borderRadius ?? BorderRadius.circular(24),
+          borderRadius: borderRadius ?? BorderRadius.circular(12.r),
         ),
         child: ElevatedButton(
           onPressed: isEnabled ? onTap : null,
@@ -61,7 +61,7 @@ class AppFilledButton extends StatelessWidget {
             padding: EdgeInsets.zero,
             minimumSize: Size(width ?? 36, height ?? 36),
             shape: RoundedRectangleBorder(
-              borderRadius: borderRadius ?? BorderRadius.circular(24),
+              borderRadius: borderRadius ?? BorderRadius.circular(12.r),
             ),
           ),
           child: Ink(
@@ -91,15 +91,15 @@ class AppFilledButton extends StatelessWidget {
                   : colorScheme.onSurfaceVariant.withOpacity(0.6),
           elevation: 1,
           shadowColor: colorScheme.shadow.withOpacity(0.2),
-          padding: padding ?? EdgeInsets.all(12.r),
+          padding: padding ?? EdgeInsets.all(16.r),
           minimumSize: Size(width ?? 36, height ?? 36),
           maximumSize: width != null ? Size(width!, double.infinity) : null,
           shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.circular(24),
+            borderRadius: borderRadius ?? BorderRadius.circular(12),
           ),
           textStyle:
               textStyle ??
-              textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+              textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         child: _buildButtonContent(context),
       ),
@@ -125,7 +125,7 @@ class AppFilledButton extends StatelessWidget {
                 style:
                     textStyle ??
                     (gradient != null
-                        ? textTheme.labelLarge?.copyWith(
+                        ? textTheme.titleMedium?.copyWith(
                           color:
                               isEnabled
                                   ? Colors.white

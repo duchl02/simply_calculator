@@ -1,16 +1,24 @@
+import 'dart:math' as math;
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:simply_calculator/core/extensions/string_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/calculator/calc_history_service.dart';
 import 'package:simply_calculator/screen/calculator/calculator_service.dart';
+import 'package:simply_calculator/screen/calculator/widgets/calc_history_item.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_display.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_keypad.dart';
+import 'package:simply_calculator/screen/calculator/widgets/empty_history_widget.dart';
+import 'package:simply_calculator/screen/calculator/widgets/group_calc_history_widget.dart';
 import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
-import 'dart:math' as math;
 
 @RoutePage()
 class CalculatorScreen extends StatefulWidget {
@@ -67,7 +75,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     final CalcHistoryModel calcLastHistory = CalcHistoryModel(
       expression: expression,
       result: result,
-      id: '0',
+      id: 0,
     );
     getIt<CalcLocalData>().saveLast(calcLastHistory);
   }
@@ -85,7 +93,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       appBar: AppBar(
-        title: Text(t.basic_calculator),
+        title: Text(
+          t.basic_calculator,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
@@ -93,31 +104,57 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             onPressed: () async {
               final List<CalcHistoryModel> historyList =
                   await getIt<CalcLocalData>().getAll();
-              await AppBottomSheet.show(
-                context: context,
-                child: ListView.builder(
-                  itemCount: historyList.length,
-                  itemBuilder: (context, index) {
-                    final history = historyList.reversed.elementAt(index);
-                    return ListTile(
-                      title: Text(history.expression),
-                      subtitle: Text(history.result),
-                      onTap: () {
+              if (context.mounted) {
+                final groupedHistory = CalcHistoryService.groupHistoryByDate(
+                  historyList,
+                );
+                await AppBottomSheet.show(
+                  context: context,
+                  initialChildSize: 0.6,
+                  enableActions: historyList.isNotEmpty,
+                  onRightButton: () async {
+                    context.pop();
+                    await context.router.push(const CalcHistoryRoute()).then((
+                      value,
+                    ) {
+                      if (value != null && value is CalcHistoryModel) {
                         setState(() {
-                          expression = history.expression;
-                          result = history.result;
+                          expression = value.expression;
+                          result = value.result;
                           isEndCalculation = true;
-                          _expressionController.text = expression;
-                          _lastKnownSelection = const TextSelection.collapsed(
-                            offset: 0,
-                          );
+                          _updateControllerFromExpression();
+                          _calculateResult(fromEqual: false);
                         });
-                        AutoRouter.of(context).pop();
-                      },
-                    );
+                      }
+                    });
                   },
-                ),
-              );
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      historyList.isEmpty
+                          ? Column(
+                            children: [
+                              100.verticalSpace,
+                              const EmptyHistoryWidget(),
+                            ],
+                          )
+                          : GroupCalcHistoryWidget(
+                            groupedHistory: groupedHistory,
+                            onItemTap: (CalcHistoryModel item) {
+                              setState(() {
+                                expression = item.expression;
+                                result = item.result;
+                                isEndCalculation = true;
+                                _updateControllerFromExpression();
+                                _calculateResult(fromEqual: false);
+                              });
+                              context.pop();
+                            },
+                          ),
+                    ],
+                  ),
+                );
+              }
             },
           ),
         ],
@@ -350,11 +387,48 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   void onButtonPressed(String btnText) {
     setState(() {
-      if (isEndCalculation) {
+      // Kiểm tra xem btnText có phải là toán tử không
+      bool isOperator = ['+', '-', '×', '÷', '^', '%'].contains(btnText);
+      bool isMathFunction = [
+        'sin',
+        'cos',
+        'tan',
+        'log',
+        'ln',
+        '√',
+        '∛',
+      ].contains(btnText);
+
+      // Nếu đã có kết quả (isEndCalculation = true) và nhấn toán tử
+      if (isEndCalculation && isOperator) {
+        // Tiếp tục tính toán với kết quả trước đó + toán tử
+        expression = result.formatAsFixed() + btnText;
+        isEndCalculation = false;
+        result = '';
+        _updateControllerFromExpression();
+        _expressionController.selection = TextSelection.collapsed(
+          offset: expression.length,
+        );
+        return;
+      }
+      // Nếu đã có kết quả và nhấn hàm toán học
+      else if (isEndCalculation && isMathFunction) {
+        // Sử dụng kết quả làm đối số cho hàm toán học
+        expression = btnText + '(' + result + ')';
+        isEndCalculation = false;
+        result = '';
+        _updateControllerFromExpression();
+        _expressionController.selection = TextSelection.collapsed(
+          offset: expression.length,
+        );
+        return;
+      }
+      // Nếu đã có kết quả và nhấn bất kỳ phím nào khác (không phải toán tử hoặc hàm toán học)
+      else if (isEndCalculation) {
+        // Reset như cũ để bắt đầu phép tính mới
         expression = '';
         result = '';
         isEndCalculation = false;
-        _lastKnownSelection = const TextSelection.collapsed(offset: 0);
       }
 
       // Kiểm tra và đảm bảo vị trí con trỏ không vượt quá độ dài chuỗi
@@ -504,6 +578,50 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             newExpression = expression;
             newCursorPosition = selectionStart;
           }
+      }
+
+      // Mở rộng xử lý cho các phím đặc biệt
+      if (isEndCalculation) {
+        switch (btnText) {
+          case '(':
+            // Bắt đầu một biểu thức mới với dấu ngoặc mở
+            expression = '(';
+            isEndCalculation = false;
+            result = '';
+            break;
+          case ')':
+            // Không làm gì vì không có ngoặc nào để đóng trong kết quả đơn lẻ
+            return;
+          case '.':
+            // Tiếp tục với kết quả + dấu thập phân
+            expression = result + '.';
+            isEndCalculation = false;
+            result = '';
+            break;
+          default:
+            if (isOperator) {
+              // Xử lý đã được thêm ở trên
+              expression = result + btnText;
+              isEndCalculation = false;
+              result = '';
+            } else if ('0123456789'.contains(btnText)) {
+              // Bắt đầu một phép tính mới với số được nhấn
+              expression = btnText;
+              isEndCalculation = false;
+              result = '';
+            } else {
+              // Các trường hợp khác, bắt đầu mới
+              expression = '';
+              result = '';
+              isEndCalculation = false;
+            }
+        }
+
+        _updateControllerFromExpression();
+        _expressionController.selection = TextSelection.collapsed(
+          offset: expression.length,
+        );
+        return;
       }
 
       try {

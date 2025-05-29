@@ -10,13 +10,13 @@ abstract class BaseHiveStorage<T> {
           ? Hive.box<T>(boxName)
           : await Hive.openBox<T>(boxName);
 
-  Future<void> save(String key, T value) async => (await _box).put(key, value);
+  Future<void> save(dynamic key, T value) async => (await _box).put(key, value);
 
-  Future<T?> get(String key) async => (await _box).get(key);
+  Future<T?> get(dynamic key) async => (await _box).get(key);
 
   Future<List<T>> getAll() async => (await _box).values.toList();
 
-  Future<void> _deleteKey(String key) async => (await _box).delete(key);
+  Future<void> _deleteKey(dynamic key) async => (await _box).delete(key);
 
   Future<void> clearAll() async => (await _box).clear();
 
@@ -36,21 +36,27 @@ abstract class BaseHiveStorage<T> {
 
   Future<void> deleteById(T item) async => await _deleteKey(_getId(item));
 
+  Future<void> deleteMultiple(List<T> items) async {
+    final keys = items.map((item) => _getId(item)).toList();
+    await (await _box).deleteAll(keys);
+  }
+
   Stream<BoxEvent> watch() async* {
     final box = await _box;
     yield* box.watch();
   }
 
-  String _getId(T item) {
+  dynamic _getId(T item) {
     try {
-      final id = (item as dynamic).id;
-      if (id is! String) {
-        throw Exception();
+      dynamic id = (item as dynamic).id;
+      if (id is String || id is int) {
+        return id.toString();
+      } else {
+        throw Exception('ID must be a String or an int.');
       }
-      return id;
     } catch (_) {
       throw Exception(
-        'Model ${item.runtimeType} must have a String `id` field.',
+        'Model ${item.runtimeType} must have an id field of type String or int.',
       );
     }
   }

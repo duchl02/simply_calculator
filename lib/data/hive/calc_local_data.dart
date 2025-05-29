@@ -23,7 +23,9 @@ class CalcLocalData extends BaseHiveStorage<CalcHistoryModel> {
   Future<List<CalcHistoryModel>> getAll() async {
     final List<CalcHistoryModel> allCalcHistory = await super.getAll();
     final List<CalcHistoryModel> calcHistoryWithoutLast =
-        allCalcHistory.where((element) => element.id != '0').toList();
+        allCalcHistory.where((element) => element.id != 0).toList();
+    // Sort the history by timestamp in descending order
+    calcHistoryWithoutLast.sort((a, b) => b.id.compareTo(a.id));
     return calcHistoryWithoutLast;
   }
 }
