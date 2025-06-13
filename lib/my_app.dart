@@ -35,6 +35,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     useMobileLayout = width < 600;
+
     return ScreenUtilInit(
       useInheritedMediaQuery: true,
       designSize:
@@ -52,6 +53,8 @@ class _MyAppState extends State<MyApp> {
                   previous.fontFamily != current.fontFamily;
             },
             builder: (context, state) {
+              appContext = context;
+
               return MaterialApp.router(
                 theme: AppTheme.getLightTheme(),
                 themeMode:

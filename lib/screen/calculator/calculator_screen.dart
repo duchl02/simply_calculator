@@ -4,7 +4,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/string_extension.dart';
-import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
@@ -12,13 +11,15 @@ import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/calculator/calc_history_service.dart';
 import 'package:simply_calculator/screen/calculator/calculator_service.dart';
-import 'package:simply_calculator/screen/calculator/widgets/calc_history_item.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_display.dart';
 import 'package:simply_calculator/screen/calculator/widgets/calculator_keypad.dart';
 import 'package:simply_calculator/screen/calculator/widgets/empty_history_widget.dart';
 import 'package:simply_calculator/screen/calculator/widgets/group_calc_history_widget.dart';
 import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
+import 'package:simply_calculator/screen/widgets/drawer/app_drawer.dart';
+
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 @RoutePage()
 class CalculatorScreen extends StatefulWidget {
@@ -91,12 +92,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     _updateControllerFromExpression();
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      drawer: const AppDrawer(),
       appBar: AppBar(
-        title: Text(
-          t.basic_calculator,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(

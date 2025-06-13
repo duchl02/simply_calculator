@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-BuildContext? globalContext;
+BuildContext? appContext;
 bool useMobileLayout = true;
 bool isArabic = false;

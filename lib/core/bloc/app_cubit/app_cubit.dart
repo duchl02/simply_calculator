@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/style/flex_theme/flex_scheme.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
@@ -81,5 +82,15 @@ class AppCubit extends Cubit<AppState> {
   void _initFontFamily() {
     final fontFamily = appRepository.getFontFamily();
     emit(state.copyWith(fontFamily: fontFamily));
+  }
+
+  static String getLanguageName() {
+    final language = LocaleSettings.currentLocale.languageCode;
+    for (final lang in AppConst.languages) {
+      if (lang['code'] == language) {
+        return lang['name'] ?? '';
+      }
+    }
+    return AppLocale.en.name;
   }
 }

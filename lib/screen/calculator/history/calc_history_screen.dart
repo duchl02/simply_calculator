@@ -7,6 +7,7 @@ import 'package:simply_calculator/screen/calculator/history/cubit/calc_history_c
 import 'package:simply_calculator/screen/calculator/widgets/empty_history_widget.dart';
 import 'package:simply_calculator/screen/calculator/widgets/group_calc_history_widget.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
+import 'package:simply_calculator/screen/widgets/dialog/app_dialog.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 
 @RoutePage()
@@ -106,7 +107,15 @@ class _CalcHistoryScreenState extends State<CalcHistoryScreen> {
                                     if (state.isInSelectionMode) {
                                       _cubit.deleteMultipleHistoryItems();
                                     } else {
-                                      _cubit.clearHistory();
+                                      AppDialog.show(
+                                        context: context,
+                                        title: t.clear_history,
+                                        content: t.clear_history_confirm,
+                                        onRightButton: () {
+                                          _cubit.clearHistory();
+                                          AutoRouter.of(context).pop();
+                                        },
+                                      );
                                     }
                                   },
                                   title: t.delete,

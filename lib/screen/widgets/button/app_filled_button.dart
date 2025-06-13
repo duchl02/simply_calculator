@@ -125,7 +125,7 @@ class AppFilledButton extends StatelessWidget {
                 style:
                     textStyle ??
                     (gradient != null
-                        ? textTheme.titleMedium?.copyWith(
+                        ? textTheme.titleLarge?.copyWith(
                           color:
                               isEnabled
                                   ? Colors.white

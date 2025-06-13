@@ -29,7 +29,7 @@ class AppScaffold extends StatelessWidget {
       appBar:
           appBar ??
           AppBar(
-      backgroundColor: backgroundColor ?? context.colorScheme.inversePrimary,
+      backgroundColor: backgroundColor ?? context.colorScheme.surface,
             title:
                 title != null
                     ? Text(title!, style: context.textTheme.titleLarge)
@@ -40,7 +40,7 @@ class AppScaffold extends StatelessWidget {
       drawer: drawer,
       persistentFooterButtons:
           persistentFooterButtons != null ? [persistentFooterButtons!] : null,
-      backgroundColor: backgroundColor ?? context.colorScheme.inversePrimary,
+      backgroundColor: backgroundColor ?? context.colorScheme.surface,
     );
   }
 }

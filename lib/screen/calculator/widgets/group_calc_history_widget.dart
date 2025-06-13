@@ -28,11 +28,11 @@ class GroupCalcHistoryWidget extends StatelessWidget {
       ...groupedHistory.keys
           .where(
             (key) =>
-                key != t.today &&
-                key != t.yesterday &&
-                key != t.last_7_days &&
-                key != t.this_month &&
-                key != t.last_month,
+                key != 'Today' &&
+                key != 'Yesterday' &&
+                key != 'Last 7 Days' &&
+                key != 'This Month' &&
+                key != 'Last Month',
           )
           .toList()
         ..sort(),
