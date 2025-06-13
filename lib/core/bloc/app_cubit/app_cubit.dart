@@ -50,14 +50,32 @@ class AppCubit extends Cubit<AppState> {
   void _initDarkMode() {
     final isDarkModeLocal = appRepository.getDarkMode();
     bool isDarkMode = false;
+    ThemeMode themeMode = ThemeMode.system;
     if (isDarkModeLocal == null) {
       final brightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
       isDarkMode = brightness == Brightness.dark;
+      themeMode =
+          isDarkMode
+              ? ThemeMode.dark
+              : WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                  Brightness.light
+              ? ThemeMode.light
+              : ThemeMode.system;
     } else {
       isDarkMode = isDarkModeLocal;
     }
-    emit(state.copyWith(isDarkMode: isDarkMode));
+
+    emit(state.copyWith(isDarkMode: isDarkMode, themeMode: themeMode));
+  }
+
+  void setThemeMode(ThemeMode themeMode) {
+    final brightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final isDarkMode =
+        themeMode == ThemeMode.dark ||
+        (themeMode == ThemeMode.system && brightness == Brightness.dark);
+    emit(state.copyWith(isDarkMode: isDarkMode, themeMode: themeMode));
   }
 
   Future<void> _initLanguage() async {

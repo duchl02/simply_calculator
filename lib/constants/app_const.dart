@@ -45,6 +45,7 @@ class AppConst {
     {'name': 'हिन्दी', 'code': 'hi', 'flag': '🇮🇳'},
     {'name': 'Español', 'code': 'es', 'flag': '🇪🇸'},
     {'name': '简体中文', 'code': 'zh', 'flag': '🇨🇳'},
+    {'code': 'ar', 'name': 'العربية', 'flag': '🇸🇦'},
     {'name': 'Português', 'code': 'pt', 'flag': '🇵🇹'},
     {'name': 'বাংলা', 'code': 'bn', 'flag': '🇧🇩'},
     {'name': 'Русский', 'code': 'ru', 'flag': '🇷🇺'},

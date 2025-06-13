@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/dialog/feedback_dialog.dart';
@@ -27,13 +28,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             children: [
               _buildSection([
-                _buildSettingItem(
-                  icon: Icons.calculate_outlined,
-                  title: t.calculator_settings,
-                  onTap: () {
-                    context.pushRoute(const CalculatorSettingsRoute());
-                  },
-                ),
                 _buildSettingItem(
                   icon: Icons.language_outlined,
                   title: t.language,
@@ -70,6 +64,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mode: LaunchMode.externalApplication,
                     );
                   },
+                ),
+                _buildSettingItem(
+                  icon: Icons.palette_outlined,
+                  title: t.theme_settings,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    context.pushRoute(const ThemeSettingsRoute());
+                  },
+                ),
+                _buildSettingItem(
+                  title: t.dark_mode,
+                  icon: Icons.dark_mode_outlined,
+                  trailing: Switch(
+                    value: getIt<AppCubit>().state.isDarkMode,
+                    onChanged: (value) {
+                      Future.microtask(
+                        () => getIt<AppCubit>().setDarkMode(value),
+                      );
+                    },
+                  ),
                 ),
               ], t.general_setting),
               const SizedBox(height: 16),
