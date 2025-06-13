@@ -25,8 +25,18 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           .where(
             (theme) =>
                 theme != FlexScheme.flutterDash &&
-                theme != FlexScheme.materialBaseline &&
-                theme != FlexScheme.hippieBlue,
+                theme != FlexScheme.shadBlue &&
+                theme != FlexScheme.shadGreen &&
+                theme != FlexScheme.shadOrange &&
+                theme != FlexScheme.shadRed &&
+                theme != FlexScheme.shadYellow &&
+                theme != FlexScheme.shadNeutral &&
+                theme != FlexScheme.shadZinc &&
+                theme != FlexScheme.shadSlate &&
+                theme != FlexScheme.shadGray &&
+                theme != FlexScheme.shadStone &&
+                theme != FlexScheme.shadRose &&
+                theme != FlexScheme.shadViolet,
           )
           .toList();
 
@@ -188,29 +198,29 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       controller: _pageController,
       itemCount: availableThemes.length,
       onPageChanged: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-        Future.delayed(const Duration(milliseconds: 500), () {
-          context.read<AppCubit>().setTheme(availableThemes[index]);
-        });
+        // setState(() {
+        //   _currentIndex = index;
+        // });
+        // Future.delayed(const Duration(milliseconds: 500), () {
+        //   context.read<AppCubit>().setTheme(availableThemes[index]);
+        // });
 
-        if (_listController.hasClients) {
-          const itemHeight = 64.0;
-          final offset = index * itemHeight;
+        // if (_listController.hasClients) {
+        //   const itemHeight = 64.0;
+        //   final offset = index * itemHeight;
 
-          if (offset < _listController.offset ||
-              offset >
-                  _listController.offset +
-                      _listController.position.viewportDimension -
-                      itemHeight) {
-            _listController.animateTo(
-              offset - 100, // Position with some padding
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
-        }
+        //   if (offset < _listController.offset ||
+        //       offset >
+        //           _listController.offset +
+        //               _listController.position.viewportDimension -
+        //               itemHeight) {
+        //     _listController.animateTo(
+        //       offset - 100, // Position with some padding
+        //       duration: const Duration(milliseconds: 300),
+        //       curve: Curves.easeInOut,
+        //     );
+        //   }
+        // }
       },
       itemBuilder: (context, index) {
         final theme = availableThemes[index];
@@ -479,19 +489,8 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
   }
 
   String _getDisplayName(FlexScheme theme) {
-    // Convert enum value to display name, e.g. "materialBaseline" -> "Material Baseline"
-    final name = theme.name;
-    final words = name
-        .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
-        .split(' ');
+    final name = theme.data.name;
 
-    return words
-        .map((word) {
-          if (word.isEmpty) {
-            return '';
-          }
-          return word[0].toUpperCase() + word.substring(1);
-        })
-        .join(' ');
+    return name;
   }
 }

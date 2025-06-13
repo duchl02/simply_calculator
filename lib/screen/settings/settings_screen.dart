@@ -20,95 +20,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: t.settings,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              _buildSection([
-                _buildSettingItem(
-                  icon: Icons.language_outlined,
-                  title: t.language,
-                  trailing: Text(
-                    AppCubit.getLanguageName(),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  onTap: () {
-                    context.pushRoute(const LanguageRoute());
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.star_outline,
-                  title: t.rate_us,
-                  onTap: () {
-                    showRateAppDialog(context);
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.feedback_outlined,
-                  title: t.feedback,
-                  onTap: () {
-                    context.pushRoute(const FeedbackRoute());
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.privacy_tip_outlined,
-                  title: t.privacy_policy,
-                  onTap: () {
-                    launchUrl(
-                      Uri.parse(AppConst.privacyPolicy),
-                      mode: LaunchMode.externalApplication,
-                    );
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.palette_outlined,
-                  title: t.theme_settings,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    context.pushRoute(const ThemeSettingsRoute());
-                  },
-                ),
-                _buildSettingItem(
-                  title: t.dark_mode,
-                  icon: Icons.dark_mode_outlined,
-                  trailing: Switch(
-                    value: getIt<AppCubit>().state.isDarkMode,
-                    onChanged: (value) {
-                      Future.microtask(
-                        () => getIt<AppCubit>().setDarkMode(value),
-                      );
-                    },
-                  ),
-                ),
-              ], t.general_setting),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
+    return AppScaffold(title: t.settings, body: const Placeholder());
   }
 
   Widget _buildSection(List<Widget> children, String title) {
@@ -140,43 +52,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(children: children),
         ),
       ],
-    );
-  }
-
-  Widget _buildSettingItem({
-    required IconData icon,
-    required String title,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Theme.of(
-            context,
-          ).colorScheme.secondaryContainer.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
-        ),
-      ),
-      title: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-      ),
-      trailing:
-          trailing ??
-          Icon(
-            Icons.chevron_right_rounded,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-      onTap: onTap,
     );
   }
 }

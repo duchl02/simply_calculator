@@ -1,5 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
@@ -29,12 +32,21 @@ class AppScaffold extends StatelessWidget {
       appBar:
           appBar ??
           AppBar(
-      backgroundColor: backgroundColor ?? context.colorScheme.surface,
+            backgroundColor: backgroundColor ?? context.colorScheme.surface,
             title:
                 title != null
                     ? Text(title!, style: context.textTheme.titleLarge)
                     : null,
-            actions: actions,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  context.pushRoute(const FeedbackRoute());
+                },
+                icon: const Icon(Icons.bug_report_rounded),
+              ),
+              8.horizontalSpace,
+              ...actions ?? [],
+            ],
           ),
       body: body,
       drawer: drawer,
