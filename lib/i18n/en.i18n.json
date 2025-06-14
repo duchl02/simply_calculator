@@ -437,5 +437,9 @@
     "update_available": "Update Available",
     "update_now": "Update Now",
     "up_to_date": "App is Up to Date",
-    "current_version": "Current version"
+    "current_version": "Current version",
+    "app_preferences_and_customization": "App preferences and customization",
+    "personalization": "Personalization",
+    "behavior": "Behavior",
+    "system": "System"
 }

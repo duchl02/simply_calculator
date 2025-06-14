@@ -6,6 +6,7 @@ import 'package:simply_calculator/core/extensions/num_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
 
 class AppBottomSheet {
@@ -236,6 +237,184 @@ class AppBottomSheet {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: colorScheme.onPrimary,
+                          size: 16.sp,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+
+          SizedBox(height: 16.h),
+        ],
+      ),
+    );
+  }
+
+  static String getScreenName(String? routeName) {
+    if (routeName == null) {
+      return t.standard_calculator;
+    }
+
+    final Map<String, String> screenNames = {
+      CalculatorRoute.name: t.standard_calculator,
+      UnitConverterRoute.name: t.unit_converter,
+      ToolsHubRoute.name: t.utility_calculators,
+      BmiCalculatorRoute.name: t.bmi_calculator,
+      DiscountCalculatorRoute.name: t.discount_calculator,
+      TipCalculatorRoute.name: t.tip_calculator,
+      DateCalculatorRoute.name: t.date_calculator,
+      LoanCalculatorRoute.name: t.loan_calculator,
+      GpaCalculatorRoute.name: t.gpa_calculator,
+      AgeCalculatorRoute.name: t.age_calculator,
+    };
+
+    return screenNames[routeName] ?? t.standard_calculator;
+  }
+
+  static void showDefaultScreenSelector(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final appCubit = getIt<AppCubit>();
+    final currentDefault = appCubit.state.defaultCalculator;
+
+    // List of available screens with their routes
+    final List<Map<String, dynamic>> screens = [
+      {
+        'name': t.standard_calculator,
+        'route': CalculatorRoute.name,
+        'icon': Icons.calculate_rounded,
+        'color': colorScheme.primary,
+      },
+      {
+        'name': t.unit_converter,
+        'route': UnitConverterRoute.name,
+        'icon': Icons.straighten_rounded,
+        'color': Colors.blue,
+      },
+      {
+        'name': t.utility_calculators,
+        'route': ToolsHubRoute.name,
+        'icon': Icons.calculate_rounded,
+        'color': Colors.indigo,
+      },
+      {
+        'name': t.bmi_calculator,
+        'route': BmiCalculatorRoute.name,
+        'icon': Icons.monitor_weight_outlined,
+        'color': Colors.green,
+      },
+      {
+        'name': t.discount_calculator,
+        'route': DiscountCalculatorRoute.name,
+        'icon': Icons.percent,
+        'color': Colors.purple,
+      },
+      {
+        'name': t.tip_calculator,
+        'route': TipCalculatorRoute.name,
+        'icon': Icons.payments_outlined,
+        'color': Colors.amber,
+      },
+      {
+        'name': t.date_calculator,
+        'route': DateCalculatorRoute.name,
+        'icon': Icons.date_range,
+        'color': Colors.orange,
+      },
+      {
+        'name': t.loan_calculator,
+        'route': LoanCalculatorRoute.name,
+        'icon': Icons.account_balance_outlined,
+        'color': Colors.blueGrey,
+      },
+      {
+        'name': t.gpa_calculator,
+        'route': GpaCalculatorRoute.name,
+        'icon': Icons.school_outlined,
+        'color': Colors.deepPurple,
+      },
+      {
+        'name': t.age_calculator,
+        'route': AgeCalculatorRoute.name,
+        'icon': Icons.cake_outlined,
+        'color': Colors.red,
+      },
+    ];
+
+    AppBottomSheet.show(
+      context: context,
+      title: t.choose_startup_screen,
+      initialChildSize: 0.6,
+      maxChildSize: 0.95,
+      enableActions: false,
+      backgroundColor: colorScheme.surface,
+      child: Column(
+        children: [
+          // Screen options
+          ...screens.map((screen) {
+            final bool isSelected =
+                currentDefault == screen['route'] ||
+                (currentDefault == null && screen['route'] == '/');
+
+            return InkWell(
+              onTap: () {
+                final String route = screen['route'] as String;
+                appCubit.setDefaultCalculator(route);
+                Navigator.pop(context);
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+                margin: EdgeInsets.only(bottom: 8.h),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected
+                          ? colorScheme.primaryContainer
+                          : colorScheme.surfaceVariant.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      isSelected
+                          ? Border.all(color: colorScheme.primary)
+                          : null,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: (screen['color'] as Color).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        screen['icon'] as IconData,
+                        color: screen['color'] as Color,
+                        size: 20.sp,
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: Text(
+                        screen['name'] as String,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color:
+                              isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
+                        ),
                       ),
                     ),
                     if (isSelected)
