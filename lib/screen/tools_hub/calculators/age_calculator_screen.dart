@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 import 'package:intl/intl.dart';
 
@@ -197,6 +200,15 @@ class _AgeCalculatorScreenState extends State<AgeCalculatorScreen> {
 
     return AppScaffold(
       title: t.age_calculator,
+      actions: [
+        FavoriteButton(
+          calculatorItem: FavoriteCalcItem(
+            title: t.age_calculator,
+            routeName: const AgeCalculatorRoute().routeName,
+            icon: Icons.cake,
+          ),
+        ),
+      ],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
         child: Column(

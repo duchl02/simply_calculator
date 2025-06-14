@@ -99,7 +99,7 @@ class AppSnackbar extends StatelessWidget {
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
                 Icon(icon, size: 24.w, color: Colors.white),

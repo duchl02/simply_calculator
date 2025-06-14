@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 
@@ -47,7 +46,6 @@ class AppScaffold extends StatelessWidget {
                   },
                   icon: const Icon(Icons.bug_report_rounded),
                 ),
-              if (hasFeedbackButton) 8.horizontalSpace,
               ...actions ?? [],
             ],
           ),

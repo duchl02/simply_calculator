@@ -1,3 +1,5 @@
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+
 abstract class AppRepository {
   Future<void> setFirstTimeOpenApp(int value);
   int? getFirstTimeOpenApp();
@@ -13,4 +15,8 @@ abstract class AppRepository {
 
   Future<void> setFontFamily(String fontFamily);
   String getFontFamily();
+
+  Future<void> setFavoriteCalculator(List<FavoriteCalcItem> item);
+
+  List<FavoriteCalcItem> getFavoriteCalculator();
 }

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 import 'package:intl/intl.dart';
 
@@ -14,21 +17,22 @@ class DateCalculatorScreen extends StatefulWidget {
   State<DateCalculatorScreen> createState() => _DateCalculatorScreenState();
 }
 
-class _DateCalculatorScreenState extends State<DateCalculatorScreen> with SingleTickerProviderStateMixin {
+class _DateCalculatorScreenState extends State<DateCalculatorScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // Date Difference
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
   int _dateDifference = 30;
-  
+
   // Add/Subtract
   DateTime _baseDate = DateTime.now();
   int _years = 0;
   int _months = 0;
   int _days = 0;
   DateTime _resultDate = DateTime.now();
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,19 +43,19 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
     _calculateDifference();
     _calculateDate();
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-  
+
   void _calculateDifference() {
     setState(() {
       _dateDifference = _endDate.difference(_startDate).inDays;
     });
   }
-  
+
   void _calculateDate() {
     setState(() {
       _resultDate = DateTime(
@@ -65,22 +69,25 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return AppScaffold(
       title: t.date_calculator,
+      actions: [
+        FavoriteButton(
+          calculatorItem: FavoriteCalcItem(
+            title: t.date_calculator,
+            routeName: DateCalculatorRoute.name,
+            icon: Icons.calendar_month,
+          ),
+        ),
+      ],
       body: Column(
         children: [
           TabBar(
             controller: _tabController,
             tabs: [
-              Tab(
-                icon: Icon(Icons.date_range),
-                text: t.difference,
-              ),
-              Tab(
-                icon: Icon(Icons.add_alarm),
-                text: t.add_subtract,
-              ),
+              Tab(icon: Icon(Icons.date_range), text: t.difference),
+              Tab(icon: Icon(Icons.add_alarm), text: t.add_subtract),
             ],
             labelColor: colorScheme.primary,
             unselectedLabelColor: colorScheme.onSurfaceVariant.withOpacity(0.7),
@@ -99,11 +106,11 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
       ),
     );
   }
-  
+
   Widget _buildDateDifferenceTab(ColorScheme colorScheme) {
     final dateFormat = DateFormat.yMMMMd();
     final weekdayFormat = DateFormat.EEEE();
-    
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -124,12 +131,12 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                   Text(
                     t.select_dates,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // Start date
                   _buildDateSelector(
                     label: t.start_date,
@@ -142,7 +149,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                     },
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // End date
                   _buildDateSelector(
                     label: t.end_date,
@@ -154,7 +161,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       _calculateDifference();
                     },
                   ),
-                  
+
                   // Quick buttons
                   SizedBox(height: 16.h),
                   Wrap(
@@ -170,13 +177,17 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       }),
                       _buildQuickButton(t.tomorrow, () {
                         setState(() {
-                          _endDate = DateTime.now().add(const Duration(days: 1));
+                          _endDate = DateTime.now().add(
+                            const Duration(days: 1),
+                          );
                         });
                         _calculateDifference();
                       }),
                       _buildQuickButton(t.next_week, () {
                         setState(() {
-                          _endDate = DateTime.now().add(const Duration(days: 7));
+                          _endDate = DateTime.now().add(
+                            const Duration(days: 7),
+                          );
                         });
                         _calculateDifference();
                       }),
@@ -206,7 +217,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
               ),
             ),
           ),
-          
+
           // Results section
           Card(
             margin: EdgeInsets.only(top: 24.h),
@@ -223,18 +234,18 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                   Text(
                     t.date_difference,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                        ),
+                      color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    ),
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // Start date info
                   _buildDateInfo(
                     label: t.start_date,
                     date: _startDate,
                     colorScheme: colorScheme,
                   ),
-                  
+
                   // Arrow separator
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -243,46 +254,48 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       color: colorScheme.onPrimaryContainer.withOpacity(0.6),
                     ),
                   ),
-                  
+
                   // End date info
                   _buildDateInfo(
                     label: t.end_date,
                     date: _endDate,
                     colorScheme: colorScheme,
                   ),
-                  
+
                   Divider(
                     height: 32.h,
                     color: colorScheme.onPrimaryContainer.withOpacity(0.2),
                   ),
-                  
+
                   // Difference result
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '$_dateDifference',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
                       ),
                       SizedBox(width: 8.w),
                       Text(
                         _dateDifference == 1 ? t.day : t.days,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: colorScheme.onPrimaryContainer,
-                            ),
+                          color: colorScheme.onPrimaryContainer,
+                        ),
                       ),
                     ],
                   ),
-                  
+
                   SizedBox(height: 8.h),
                   Text(
                     _formatDuration(_dateDifference),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                        ),
+                      color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    ),
                   ),
                 ],
               ),
@@ -292,11 +305,11 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
       ),
     );
   }
-  
+
   Widget _buildDateAddSubtractTab(ColorScheme colorScheme) {
     final dateFormat = DateFormat.yMMMMd();
     final weekdayFormat = DateFormat.EEEE();
-    
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -318,10 +331,12 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                     children: [
                       Text(
                         t.base_date,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const Spacer(),
                       TextButton.icon(
@@ -335,13 +350,16 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                         label: Text(t.today),
                         style: TextButton.styleFrom(
                           foregroundColor: colorScheme.primary,
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 6.h,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 8.h),
-                  
+
                   // Base date selector
                   InkWell(
                     borderRadius: BorderRadius.circular(8.r),
@@ -360,7 +378,10 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       }
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 14.h,
+                      ),
                       decoration: BoxDecoration(
                         color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(8.r),
@@ -377,15 +398,16 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                             children: [
                               Text(
                                 dateFormat.format(_baseDate),
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               Text(
                                 weekdayFormat.format(_baseDate),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.onSurface.withOpacity(0.7),
-                                    ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurface.withOpacity(0.7),
+                                ),
                               ),
                             ],
                           ),
@@ -393,17 +415,17 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(height: 24.h),
                   Text(
                     t.add_or_subtract,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // Time units
                   Row(
                     children: [
@@ -447,7 +469,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       ),
                     ],
                   ),
-                  
+
                   // Quick buttons for addition/subtraction
                   SizedBox(height: 16.h),
                   Wrap(
@@ -491,7 +513,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
               ),
             ),
           ),
-          
+
           // Result section
           Card(
             margin: EdgeInsets.only(top: 24.h),
@@ -508,18 +530,18 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                   Text(
                     t.result_date,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                        ),
+                      color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    ),
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // Base date info
                   _buildDateInfo(
                     label: t.base_date,
                     date: _baseDate,
                     colorScheme: colorScheme,
                   ),
-                  
+
                   // Show operation
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -531,14 +553,18 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                             '${_years > 0 ? "+" : ""}$_years ${_years == 1 ? t.year : t.years}',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         if (_years != 0 && (_months != 0 || _days != 0))
                           Text(
                             ', ',
                             style: TextStyle(
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         if (_months != 0)
@@ -546,14 +572,18 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                             '${_months > 0 ? "+" : ""}$_months ${_months == 1 ? t.month : t.months}',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         if (_months != 0 && _days != 0)
                           Text(
                             ', ',
                             style: TextStyle(
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         if (_days != 0)
@@ -561,7 +591,9 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                             '${_days > 0 ? "+" : ""}$_days ${_days == 1 ? t.day : t.days}',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.8,
+                              ),
                             ),
                           ),
                         if (_years == 0 && _months == 0 && _days == 0)
@@ -569,18 +601,20 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                             t.no_change,
                             style: TextStyle(
                               fontStyle: FontStyle.italic,
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.6),
+                              color: colorScheme.onPrimaryContainer.withOpacity(
+                                0.6,
+                              ),
                             ),
                           ),
                       ],
                     ),
                   ),
-                  
+
                   Divider(
                     height: 32.h,
                     color: colorScheme.onPrimaryContainer.withOpacity(0.2),
                   ),
-                  
+
                   // Result date
                   Container(
                     padding: EdgeInsets.all(16.w),
@@ -592,27 +626,35 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                       children: [
                         Text(
                           DateFormat.yMMMMd().format(_resultDate),
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
                         ),
                         SizedBox(height: 4.h),
                         Text(
                           DateFormat.EEEE().format(_resultDate),
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.9),
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onPrimaryContainer.withOpacity(
+                              0.9,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Copy button
                   SizedBox(height: 16.h),
                   OutlinedButton.icon(
                     onPressed: () {
-                      final resultText = DateFormat('EEEE, MMMM d, y').format(_resultDate);
+                      final resultText = DateFormat(
+                        'EEEE, MMMM d, y',
+                      ).format(_resultDate);
                       Clipboard.setData(ClipboardData(text: resultText));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -621,14 +663,13 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                         ),
                       );
                     },
-                    icon: Icon(
-                      Icons.copy,
-                      size: 18.sp,
-                    ),
+                    icon: Icon(Icons.copy, size: 18.sp),
                     label: Text(t.copy_result),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: colorScheme.onPrimaryContainer,
-                      side: BorderSide(color: colorScheme.onPrimaryContainer.withOpacity(0.5)),
+                      side: BorderSide(
+                        color: colorScheme.onPrimaryContainer.withOpacity(0.5),
+                      ),
                     ),
                   ),
                 ],
@@ -639,7 +680,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
       ),
     );
   }
-  
+
   // Helper method to build date selector
   Widget _buildDateSelector({
     required String label,
@@ -649,7 +690,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
     final dateFormat = DateFormat.yMMMMd();
     final weekdayFormat = DateFormat.EEEE();
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -682,10 +723,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.calendar_month,
-                  color: colorScheme.primary,
-                ),
+                Icon(Icons.calendar_month, color: colorScheme.primary),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
@@ -693,9 +731,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                     children: [
                       Text(
                         dateFormat.format(date),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                       Text(
                         weekdayFormat.format(date),
@@ -756,7 +792,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                   ),
                 ),
               ),
-              
+
               // Input field
               Expanded(
                 child: TextField(
@@ -777,7 +813,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
                   },
                 ),
               ),
-              
+
               // Plus button
               InkWell(
                 borderRadius: BorderRadius.circular(8.r),
@@ -825,7 +861,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
   }) {
     final dateFormat = DateFormat.yMMMMd();
     final weekdayFormat = DateFormat.EEEE();
-    
+
     return Column(
       children: [
         Text(
@@ -839,9 +875,9 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
         Text(
           dateFormat.format(date),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onPrimaryContainer,
-              ),
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onPrimaryContainer,
+          ),
         ),
         Text(
           weekdayFormat.format(date),
@@ -852,15 +888,15 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
       ],
     );
   }
-  
+
   // Helper method to format duration for displaying
   String _formatDuration(int days) {
     if (days <= 0) return '';
-    
+
     final years = days ~/ 365;
     final months = (days % 365) ~/ 30;
     final remainingDays = days % 30;
-    
+
     String result = '';
     if (years > 0) {
       result += '$years ${years == 1 ? t.year : t.years}';
@@ -873,7 +909,7 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen> with Single
       if (result.isNotEmpty) result += ', ';
       result += '$remainingDays ${remainingDays == 1 ? t.day : t.days}';
     }
-    
+
     return result;
   }
 }

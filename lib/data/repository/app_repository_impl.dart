@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:simply_calculator/data/shared_preferences/app_local_data_source.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 
 @Injectable(as: AppRepository)
 class AppRepositoryImpl implements AppRepository {
@@ -50,5 +51,15 @@ class AppRepositoryImpl implements AppRepository {
   @override
   String getFontFamily() {
     return localDataSource.getFontFamily();
+  }
+
+  @override
+  Future<void> setFavoriteCalculator(List<FavoriteCalcItem> item) {
+    return localDataSource.setFavoriteCalculator(item);
+  }
+
+  @override
+  List<FavoriteCalcItem> getFavoriteCalculator() {
+    return localDataSource.getFavoriteCalculator();
   }
 }

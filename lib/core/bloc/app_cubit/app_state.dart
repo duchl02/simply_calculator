@@ -6,6 +6,8 @@ class AppState extends Equatable {
   final bool isDarkMode;
   final String? fontFamily;
   final ThemeMode? themeMode;
+  final FavoriteCalcItem? favoriteCalcItem;
+  final List<FavoriteCalcItem> favorites;
 
   const AppState({
     this.language = 'en',
@@ -13,6 +15,8 @@ class AppState extends Equatable {
     this.isDarkMode = false,
     this.themeMode = ThemeMode.system,
     this.fontFamily,
+    this.favoriteCalcItem,
+    this.favorites = const [],
   });
 
   AppState copyWith({
@@ -21,6 +25,8 @@ class AppState extends Equatable {
     bool? isDarkMode,
     String? fontFamily,
     ThemeMode? themeMode,
+    FavoriteCalcItem? favoriteCalcItem,
+    List<FavoriteCalcItem>? favorites,
   }) {
     return AppState(
       language: language ?? this.language,
@@ -28,9 +34,19 @@ class AppState extends Equatable {
       isDarkMode: isDarkMode ?? this.isDarkMode,
       fontFamily: fontFamily ?? this.fontFamily,
       themeMode: themeMode ?? this.themeMode,
+      favoriteCalcItem: favoriteCalcItem ?? this.favoriteCalcItem,
+      favorites: favorites ?? this.favorites,
     );
   }
 
   @override
-  List<Object?> get props => [language, theme, isDarkMode, fontFamily, themeMode];
+  List<Object?> get props => [
+    language,
+    theme,
+    isDarkMode,
+    fontFamily,
+    themeMode,
+    favoriteCalcItem,
+    favorites,
+  ];
 }

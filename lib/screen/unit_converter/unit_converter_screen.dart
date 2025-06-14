@@ -4,9 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/unit_converter/cubit/unit_converter_cubit.dart';
 import 'package:simply_calculator/screen/unit_converter/models/unit_category.dart';
 import 'package:simply_calculator/screen/unit_converter/models/unit_item.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 import 'package:simply_calculator/screen/unit_converter/utils/unit_conversion_util.dart';
 
@@ -54,6 +57,15 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             builder: (context, state) {
               return AppScaffold(
                 title: t.unit_converter,
+                actions: [
+                  FavoriteButton(
+                    calculatorItem: FavoriteCalcItem(
+                      title: t.unit_converter,
+                      routeName: UnitConverterRoute.name,
+                      icon: Icons.swap_horiz,
+                    ),
+                  ),
+                ],
                 body: Column(
                   children: [
                     // Categories horizontal list
@@ -416,14 +428,16 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
 
     // Kiểm tra giá trị hợp lệ
     if (!UnitConversionUtil.isValidInput(
-      inputValue, 
-      state.currentCategory, 
-      state.fromUnit
+      inputValue,
+      state.currentCategory,
+      state.fromUnit,
     )) {
       return Card(
         elevation: 0,
         color: Theme.of(context).colorScheme.errorContainer,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         margin: EdgeInsets.only(top: 24.h),
         child: Padding(
           padding: EdgeInsets.all(16.w),
@@ -444,8 +458,8 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (state.currentCategory == UnitCategory.temperature && 
-                  state.fromUnit.shortName == 'K' && 
+              if (state.currentCategory == UnitCategory.temperature &&
+                  state.fromUnit.shortName == 'K' &&
                   inputValue < 0)
                 Text(
                   t.kelvin_negative_error,
@@ -486,9 +500,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       margin: EdgeInsets.only(top: 24.h),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
@@ -518,7 +530,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
               state.toUnit.name,
               style: TextStyle(
                 fontSize: 16.sp,
-                color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimaryContainer.withOpacity(0.8),
               ),
               textAlign: TextAlign.center,
             ),
@@ -527,7 +541,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimaryContainer.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -539,7 +555,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                         '${state.inputValue} ${state.fromUnit.shortName} = ',
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer.withOpacity(0.8),
                         ),
                       ),
                       Text(
@@ -547,7 +565,8 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ],
@@ -559,7 +578,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                     style: TextStyle(
                       fontSize: 12.sp,
                       fontStyle: FontStyle.italic,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimaryContainer.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -571,7 +592,8 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             SizedBox(height: 16.h),
             OutlinedButton.icon(
               onPressed: () {
-                final textToCopy = '${state.inputValue} ${state.fromUnit.shortName} = $formattedResult ${state.toUnit.shortName}';
+                final textToCopy =
+                    '${state.inputValue} ${state.fromUnit.shortName} = $formattedResult ${state.toUnit.shortName}';
                 Clipboard.setData(ClipboardData(text: textToCopy));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -581,10 +603,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                   ),
                 );
               },
-              icon: Icon(
-                Icons.copy,
-                size: 18.sp,
-              ),
+              icon: Icon(Icons.copy, size: 18.sp),
               label: Text(t.copy_result),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.primary,
@@ -598,21 +617,25 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
   }
 
   // Thêm phương thức hiển thị các chuyển đổi phổ biến
-  Widget _buildCommonConversions(BuildContext context, UnitConverterState state, double inputValue) {
+  Widget _buildCommonConversions(
+    BuildContext context,
+    UnitConverterState state,
+    double inputValue,
+  ) {
     // Lấy các giá trị gợi ý cho danh mục hiện tại
     final suggestedValues = UnitConversionUtil.getSuggestedValues(
-      state.currentCategory, 
+      state.currentCategory,
       state.fromUnit,
     );
-    
+
     // Nếu giá trị nhập vào là một trong các giá trị gợi ý, không hiển thị phần này
     if (suggestedValues.contains(inputValue)) {
       return const SizedBox.shrink();
     }
-    
+
     // Chỉ hiển thị một số lượng giới hạn gợi ý để không làm màn hình quá dài
     final displayValues = suggestedValues.take(3).toList();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -631,42 +654,49 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
           spacing: 8.w,
           runSpacing: 8.h,
           alignment: WrapAlignment.center,
-          children: displayValues.map((value) {
-            // Tính kết quả chuyển đổi cho mỗi giá trị gợi ý
-            final result = UnitConversionUtil.convert(
-              value: value,
-              fromUnit: state.fromUnit,
-              toUnit: state.toUnit,
-              category: state.currentCategory,
-            );
-            
-            final formattedResult = UnitConversionUtil.formatResult(
-              result,
-              state.currentCategory,
-            );
-            
-            return InkWell(
-              onTap: () {
-                // Khi người dùng nhấp vào, cập nhật giá trị đầu vào
-                context.read<UnitConverterCubit>().updateInputValue(value.toString());
-              },
-              borderRadius: BorderRadius.circular(8.r),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+          children:
+              displayValues.map((value) {
+                // Tính kết quả chuyển đổi cho mỗi giá trị gợi ý
+                final result = UnitConversionUtil.convert(
+                  value: value,
+                  fromUnit: state.fromUnit,
+                  toUnit: state.toUnit,
+                  category: state.currentCategory,
+                );
+
+                final formattedResult = UnitConversionUtil.formatResult(
+                  result,
+                  state.currentCategory,
+                );
+
+                return InkWell(
+                  onTap: () {
+                    // Khi người dùng nhấp vào, cập nhật giá trị đầu vào
+                    context.read<UnitConverterCubit>().updateInputValue(
+                      value.toString(),
+                    );
+                  },
                   borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Text(
-                  '$value ${state.fromUnit.shortName} = $formattedResult ${state.toUnit.shortName}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      '$value ${state.fromUnit.shortName} = $formattedResult ${state.toUnit.shortName}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ],
     );

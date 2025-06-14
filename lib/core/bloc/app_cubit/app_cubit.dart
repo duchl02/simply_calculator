@@ -6,6 +6,7 @@ import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/style/flex_theme/flex_scheme.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 
 part 'app_state.dart';
 
@@ -20,6 +21,7 @@ class AppCubit extends Cubit<AppState> {
     _initFontFamily();
     _initTheme();
     _initDarkMode();
+    _initFavorites();
   }
 
   void setLanguage(String language) {
@@ -100,6 +102,30 @@ class AppCubit extends Cubit<AppState> {
   void _initFontFamily() {
     final fontFamily = appRepository.getFontFamily();
     emit(state.copyWith(fontFamily: fontFamily));
+  }
+
+  void _initFavorites() {
+    final favorites = appRepository.getFavoriteCalculator();
+    emit(state.copyWith(favorites: favorites));
+  }
+
+  void toggleFavorite(FavoriteCalcItem item) {
+    final currentFavorites = List<FavoriteCalcItem>.from(state.favorites);
+    final index = currentFavorites.indexWhere(
+      (fav) => fav.routeName == item.routeName,
+    );
+
+    if (index >= 0) {
+      currentFavorites.removeAt(index);
+    } else {
+      currentFavorites.add(item);
+    }
+    appRepository.setFavoriteCalculator(currentFavorites);
+    emit(state.copyWith(favorites: currentFavorites));
+  }
+
+  bool isFavorite(String routeName) {
+    return state.favorites.any((fav) => fav.routeName == routeName);
   }
 
   static String getLanguageName() {

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 
 @RoutePage()
@@ -80,6 +83,15 @@ class _TipCalculatorScreenState extends State<TipCalculatorScreen> {
 
     return AppScaffold(
       title: t.tip_calculator,
+      actions: [
+        FavoriteButton(
+          calculatorItem: FavoriteCalcItem(
+            title: t.tip_calculator,
+            routeName: const TipCalculatorRoute().routeName,
+            icon: Icons.attach_money,
+          ),
+        ),
+      ],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
         child: Column(

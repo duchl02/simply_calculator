@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 
 @RoutePage()
 class BmiCalculatorScreen extends StatefulWidget {
@@ -13,45 +16,46 @@ class BmiCalculatorScreen extends StatefulWidget {
   State<BmiCalculatorScreen> createState() => _BmiCalculatorScreenState();
 }
 
-class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTickerProviderStateMixin {
+class _BmiCalculatorScreenState extends State<BmiCalculatorScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // Metric units
   final TextEditingController _heightCmController = TextEditingController();
   final TextEditingController _weightKgController = TextEditingController();
-  
+
   // Imperial units
   final TextEditingController _heightFtController = TextEditingController();
   final TextEditingController _heightInController = TextEditingController();
   final TextEditingController _weightLbController = TextEditingController();
-  
+
   // Calculated values
   double _bmi = 0.0;
   String _category = "";
   Color _categoryColor = Colors.grey;
-  
+
   // Gender selection (affects interpretation slightly)
   bool _isMale = true;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     // Add listeners
     _heightCmController.addListener(_calculateMetricBMI);
     _weightKgController.addListener(_calculateMetricBMI);
     _heightFtController.addListener(_calculateImperialBMI);
     _heightInController.addListener(_calculateImperialBMI);
     _weightLbController.addListener(_calculateImperialBMI);
-    
+
     // Default values for better UX
     _heightCmController.text = "170";
     _weightKgController.text = "70";
     _heightFtController.text = "5";
     _heightInController.text = "7";
     _weightLbController.text = "154";
-    
+
     // Initial calculation
     _calculateMetricBMI();
   }
@@ -70,7 +74,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
   void _calculateMetricBMI() {
     final heightText = _heightCmController.text.trim();
     final weightText = _weightKgController.text.trim();
-    
+
     if (heightText.isEmpty || weightText.isEmpty) {
       _setBmiResult(0.0);
       return;
@@ -79,12 +83,12 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
     try {
       final height = double.parse(heightText) / 100; // cm to m
       final weight = double.parse(weightText);
-      
+
       if (height <= 0 || weight <= 0) {
         _setBmiResult(0.0);
         return;
       }
-      
+
       final bmi = weight / (height * height);
       _setBmiResult(bmi);
     } catch (e) {
@@ -96,7 +100,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
     final heightFtText = _heightFtController.text.trim();
     final heightInText = _heightInController.text.trim();
     final weightText = _weightLbController.text.trim();
-    
+
     if (heightFtText.isEmpty || weightText.isEmpty) {
       _setBmiResult(0.0);
       return;
@@ -107,12 +111,12 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
       final heightIn = int.parse(heightInText.isEmpty ? '0' : heightInText);
       final totalInches = (heightFt * 12) + heightIn;
       final weight = double.parse(weightText);
-      
+
       if (totalInches <= 0 || weight <= 0) {
         _setBmiResult(0.0);
         return;
       }
-      
+
       // BMI formula for imperial units: (weight in pounds * 703) / (height in inches)²
       final bmi = (weight * 703) / (totalInches * totalInches);
       _setBmiResult(bmi);
@@ -120,11 +124,11 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
       _setBmiResult(0.0);
     }
   }
-  
+
   void _setBmiResult(double bmi) {
     setState(() {
       _bmi = bmi;
-      
+
       if (bmi <= 0) {
         _category = t.enter_valid_values;
         _categoryColor = Colors.grey;
@@ -147,9 +151,18 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return AppScaffold(
       title: t.bmi_calculator,
+      actions: [
+        FavoriteButton(
+          calculatorItem: FavoriteCalcItem(
+            title: t.bmi_calculator,
+            routeName: const BmiCalculatorRoute().routeName,
+            icon: Icons.monitor_weight,
+          ),
+        ),
+      ],
       body: Column(
         children: [
           // Gender Selection
@@ -190,17 +203,14 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               ],
             ),
           ),
-          
+
           // Unit system tabs
           Container(
             color: colorScheme.surface,
             child: TabBar(
               controller: _tabController,
               tabs: [
-                Tab(
-                  text: t.metric,
-                  icon: Icon(Icons.straighten, size: 20.sp),
-                ),
+                Tab(text: t.metric, icon: Icon(Icons.straighten, size: 20.sp)),
                 Tab(
                   text: t.imperial,
                   icon: Icon(Icons.straighten, size: 20.sp),
@@ -209,7 +219,10 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               labelColor: colorScheme.primary,
               unselectedLabelColor: colorScheme.onSurface.withOpacity(0.7),
               indicatorColor: colorScheme.primary,
-              labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14.sp,
+              ),
               onTap: (index) {
                 // Recalculate when switching tabs
                 if (index == 0) {
@@ -220,7 +233,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               },
             ),
           ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -228,7 +241,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               children: [
                 // Metric System (cm/kg)
                 _buildMetricInputs(colorScheme),
-                
+
                 // Imperial System (ft-in/lb)
                 _buildImperialInputs(colorScheme),
               ],
@@ -262,9 +275,9 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                   Text(
                     t.height,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   TextField(
@@ -282,18 +295,22 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                           ),
                         ),
                       ),
-                      suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                      suffixIconConstraints: BoxConstraints(
+                        minWidth: 0,
+                        minHeight: 0,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                         borderSide: BorderSide(color: colorScheme.outline),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 14.h,
+                        horizontal: 16.w,
+                      ),
                     ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
-                  
+
                   // Quick height buttons
                   SizedBox(height: 8.h),
                   Wrap(
@@ -307,22 +324,24 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                       _buildQuickCmButton('190'),
                     ],
                   ),
-                  
+
                   // Divider
                   Divider(height: 32.h),
-                  
+
                   // Weight input (kg)
                   Text(
                     t.weight,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   TextField(
                     controller: _weightKgController,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
                       hintText: '70',
                       suffixIcon: Padding(
@@ -335,18 +354,26 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                           ),
                         ),
                       ),
-                      suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                      suffixIconConstraints: BoxConstraints(
+                        minWidth: 0,
+                        minHeight: 0,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                         borderSide: BorderSide(color: colorScheme.outline),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 14.h,
+                        horizontal: 16.w,
+                      ),
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}')),
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,1}'),
+                      ),
                     ],
                   ),
-                  
+
                   // Quick weight buttons
                   SizedBox(height: 8.h),
                   Wrap(
@@ -364,14 +391,14 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               ),
             ),
           ),
-          
+
           SizedBox(height: 24.h),
-          
+
           // Results card
           _buildResultsCard(colorScheme),
-          
+
           SizedBox(height: 16.h),
-          
+
           // BMI Information
           _buildBmiInfoCard(colorScheme),
         ],
@@ -402,9 +429,9 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                   Text(
                     t.height,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   Row(
@@ -426,21 +453,29 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                                 ),
                               ),
                             ),
-                            suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                            suffixIconConstraints: BoxConstraints(
+                              minWidth: 0,
+                              minHeight: 0,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.r),
-                              borderSide: BorderSide(color: colorScheme.outline),
+                              borderSide: BorderSide(
+                                color: colorScheme.outline,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 14.h,
+                              horizontal: 16.w,
+                            ),
                           ),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                         ),
                       ),
-                      
+
                       SizedBox(width: 16.w),
-                      
+
                       // Inches input
                       Expanded(
                         child: TextField(
@@ -458,12 +493,20 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                                 ),
                               ),
                             ),
-                            suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                            suffixIconConstraints: BoxConstraints(
+                              minWidth: 0,
+                              minHeight: 0,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.r),
-                              borderSide: BorderSide(color: colorScheme.outline),
+                              borderSide: BorderSide(
+                                color: colorScheme.outline,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 14.h,
+                              horizontal: 16.w,
+                            ),
                           ),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
@@ -472,7 +515,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                       ),
                     ],
                   ),
-                  
+
                   // Quick height buttons
                   SizedBox(height: 8.h),
                   Wrap(
@@ -486,17 +529,17 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                       _buildQuickHeightButton('6', '2'),
                     ],
                   ),
-                  
+
                   // Divider
                   Divider(height: 32.h),
-                  
+
                   // Weight input (lb)
                   Text(
                     t.weight,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   TextField(
@@ -514,18 +557,22 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                           ),
                         ),
                       ),
-                      suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                      suffixIconConstraints: BoxConstraints(
+                        minWidth: 0,
+                        minHeight: 0,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                         borderSide: BorderSide(color: colorScheme.outline),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 14.h,
+                        horizontal: 16.w,
+                      ),
                     ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
-                  
+
                   // Quick weight buttons
                   SizedBox(height: 8.h),
                   Wrap(
@@ -543,29 +590,27 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
               ),
             ),
           ),
-          
+
           SizedBox(height: 24.h),
-          
+
           // Results card (same as metric)
           _buildResultsCard(colorScheme),
-          
+
           SizedBox(height: 16.h),
-          
+
           // BMI Information (same as metric)
           _buildBmiInfoCard(colorScheme),
         ],
       ),
     );
   }
-  
+
   // Results Card (shared between tabs)
   Widget _buildResultsCard(ColorScheme colorScheme) {
     return Card(
       elevation: 0,
       color: colorScheme.primaryContainer.withOpacity(0.7),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -573,30 +618,34 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
             Text(
               t.your_bmi,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onPrimaryContainer,
+              ),
               textAlign: TextAlign.center,
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             // BMI Value
             Text(
               _bmi > 0 ? _bmi.toStringAsFixed(1) : "—",
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: _bmi > 0 ? _categoryColor : colorScheme.onPrimaryContainer,
-                  ),
+                fontWeight: FontWeight.bold,
+                color:
+                    _bmi > 0 ? _categoryColor : colorScheme.onPrimaryContainer,
+              ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // BMI Category
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: _bmi > 0 ? _categoryColor.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+                color:
+                    _bmi > 0
+                        ? _categoryColor.withOpacity(0.2)
+                        : Colors.grey.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Text(
@@ -608,23 +657,28 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                 ),
               ),
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             // BMI Scale
             Container(
               height: 24.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.green, Colors.orange, Colors.red],
+                  colors: [
+                    Colors.blue,
+                    Colors.green,
+                    Colors.orange,
+                    Colors.red,
+                  ],
                   stops: [0.185, 0.25, 0.30, 0.5],
                 ),
               ),
             ),
-            
+
             SizedBox(height: 8.h),
-            
+
             // Scale labels
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -666,7 +720,7 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                 ),
               ],
             ),
-            
+
             // BMI indicator
             if (_bmi > 0) ...[
               SizedBox(height: 4.h),
@@ -683,31 +737,33 @@ class _BmiCalculatorScreenState extends State<BmiCalculatorScreen> with SingleTi
                 ),
               ),
             ],
-            
+
             // Copy button
             SizedBox(height: 16.h),
             OutlinedButton.icon(
-              onPressed: _bmi > 0 ? () {
-                final result = '''
+              onPressed:
+                  _bmi > 0
+                      ? () {
+                        final result = '''
 BMI: ${_bmi.toStringAsFixed(1)}
 ${t.category}: $_category
 ''';
-                Clipboard.setData(ClipboardData(text: result));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(t.copied_to_clipboard),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              } : null,
-              icon: Icon(
-                Icons.copy,
-                size: 18.sp,
-              ),
+                        Clipboard.setData(ClipboardData(text: result));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(t.copied_to_clipboard),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                      : null,
+              icon: Icon(Icons.copy, size: 18.sp),
               label: Text(t.copy_result),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colorScheme.onPrimaryContainer,
-                side: BorderSide(color: colorScheme.onPrimaryContainer.withOpacity(0.5)),
+                side: BorderSide(
+                  color: colorScheme.onPrimaryContainer.withOpacity(0.5),
+                ),
               ),
             ),
           ],
@@ -715,15 +771,13 @@ ${t.category}: $_category
       ),
     );
   }
-  
+
   // BMI Information Card
   Widget _buildBmiInfoCard(ColorScheme colorScheme) {
     return Card(
       elevation: 0,
       color: colorScheme.surfaceVariant.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -732,13 +786,13 @@ ${t.category}: $_category
             Text(
               t.what_is_bmi,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
-            
+
             SizedBox(height: 8.h),
-            
+
             Text(
               t.bmi_explanation,
               style: TextStyle(
@@ -746,30 +800,45 @@ ${t.category}: $_category
                 height: 1.5,
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             Text(
               t.bmi_categories,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
-            
+
             SizedBox(height: 8.h),
-            
+
             // BMI categories
-            _buildCategoryItem(t.underweight, '< 18.5', Colors.blue, colorScheme),
+            _buildCategoryItem(
+              t.underweight,
+              '< 18.5',
+              Colors.blue,
+              colorScheme,
+            ),
             SizedBox(height: 4.h),
-            _buildCategoryItem(t.normal, '18.5 - 24.9', Colors.green, colorScheme),
+            _buildCategoryItem(
+              t.normal,
+              '18.5 - 24.9',
+              Colors.green,
+              colorScheme,
+            ),
             SizedBox(height: 4.h),
-            _buildCategoryItem(t.overweight, '25 - 29.9', Colors.orange, colorScheme),
+            _buildCategoryItem(
+              t.overweight,
+              '25 - 29.9',
+              Colors.orange,
+              colorScheme,
+            ),
             SizedBox(height: 4.h),
             _buildCategoryItem(t.obese, '≥ 30', Colors.red, colorScheme),
-            
+
             SizedBox(height: 16.h),
-            
+
             Text(
               t.bmi_disclaimer,
               style: TextStyle(
@@ -784,18 +853,20 @@ ${t.category}: $_category
       ),
     );
   }
-  
+
   // Helper method to build category items in the info card
-  Widget _buildCategoryItem(String category, String range, Color color, ColorScheme colorScheme) {
+  Widget _buildCategoryItem(
+    String category,
+    String range,
+    Color color,
+    ColorScheme colorScheme,
+  ) {
     return Row(
       children: [
         Container(
           width: 12.w,
           height: 12.w,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 8.w),
         Expanded(
@@ -821,13 +892,14 @@ ${t.category}: $_category
   Widget _buildQuickCmButton(String value) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _heightCmController.text == value;
-    
+
     return OutlinedButton(
       onPressed: () {
         _heightCmController.text = value;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(
@@ -838,17 +910,18 @@ ${t.category}: $_category
       child: Text('$value cm'),
     );
   }
-  
+
   Widget _buildQuickKgButton(String value) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _weightKgController.text == value;
-    
+
     return OutlinedButton(
       onPressed: () {
         _weightKgController.text = value;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(
@@ -859,18 +932,20 @@ ${t.category}: $_category
       child: Text('$value kg'),
     );
   }
-  
+
   Widget _buildQuickHeightButton(String ft, String inch) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isSelected = _heightFtController.text == ft && _heightInController.text == inch;
-    
+    final isSelected =
+        _heightFtController.text == ft && _heightInController.text == inch;
+
     return OutlinedButton(
       onPressed: () {
         _heightFtController.text = ft;
         _heightInController.text = inch;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(
@@ -881,17 +956,18 @@ ${t.category}: $_category
       child: Text("$ft'$inch\""),
     );
   }
-  
+
   Widget _buildQuickLbButton(String value) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _weightLbController.text == value;
-    
+
     return OutlinedButton(
       onPressed: () {
         _weightLbController.text = value;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(

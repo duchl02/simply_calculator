@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/widgets/button/favorite_button.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
@@ -19,37 +22,38 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
   // Input controllers
   final TextEditingController _loanAmountController = TextEditingController();
   final TextEditingController _interestRateController = TextEditingController();
-  final TextEditingController _loanTermYearsController = TextEditingController();
-  
+  final TextEditingController _loanTermYearsController =
+      TextEditingController();
+
   // Calculation results
   double _monthlyPayment = 0.0;
   double _totalPayment = 0.0;
   double _totalInterest = 0.0;
-  
+
   // Chart data
   List<PieChartSectionData> _pieChartData = [];
-  
+
   // Payment schedule
   List<PaymentScheduleItem> _paymentSchedule = [];
   bool _showFullSchedule = false;
-  
+
   // Loan type selection
   String _selectedLoanType = 'mortgage'; // mortgage, auto, personal, student
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Set default values
     _loanAmountController.text = '250000';
     _interestRateController.text = '4.5';
     _loanTermYearsController.text = '30';
-    
+
     // Add listeners
     _loanAmountController.addListener(_calculateLoan);
     _interestRateController.addListener(_calculateLoan);
     _loanTermYearsController.addListener(_calculateLoan);
-    
+
     // Initial calculation
     _calculateLoan();
   }
@@ -63,11 +67,16 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
   }
 
   void _calculateLoan() {
-    final loanAmountText = _loanAmountController.text.trim().replaceAll(',', '');
+    final loanAmountText = _loanAmountController.text.trim().replaceAll(
+      ',',
+      '',
+    );
     final interestRateText = _interestRateController.text.trim();
     final loanTermYearsText = _loanTermYearsController.text.trim();
-    
-    if (loanAmountText.isEmpty || interestRateText.isEmpty || loanTermYearsText.isEmpty) {
+
+    if (loanAmountText.isEmpty ||
+        interestRateText.isEmpty ||
+        loanTermYearsText.isEmpty) {
       _resetCalculations();
       return;
     }
@@ -76,18 +85,18 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       final loanAmount = double.parse(loanAmountText);
       final annualInterestRate = double.parse(interestRateText);
       final loanTermYears = int.parse(loanTermYearsText);
-      
+
       if (loanAmount <= 0 || annualInterestRate <= 0 || loanTermYears <= 0) {
         _resetCalculations();
         return;
       }
-      
+
       // Monthly interest rate (annual rate divided by 12 months and converted to decimal)
       final monthlyRate = annualInterestRate / 100 / 12;
-      
+
       // Total number of payments (years * 12 months)
       final numberOfPayments = loanTermYears * 12;
-      
+
       // Calculate monthly payment using the loan amortization formula
       // M = P[r(1+r)^n]/[(1+r)^n-1]
       // where:
@@ -95,17 +104,19 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       // P = principal (loan amount)
       // r = monthly interest rate
       // n = number of payments
-      final monthlyPayment = loanAmount * (monthlyRate * pow(1 + monthlyRate, numberOfPayments)) /
+      final monthlyPayment =
+          loanAmount *
+          (monthlyRate * pow(1 + monthlyRate, numberOfPayments)) /
           (pow(1 + monthlyRate, numberOfPayments) - 1);
-      
+
       final totalPayment = monthlyPayment * numberOfPayments;
       final totalInterest = totalPayment - loanAmount;
-      
+
       setState(() {
         _monthlyPayment = monthlyPayment;
         _totalPayment = totalPayment;
         _totalInterest = totalInterest;
-        
+
         // Update pie chart data
         _pieChartData = [
           PieChartSectionData(
@@ -131,15 +142,20 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
             ),
           ),
         ];
-        
+
         // Generate amortization schedule
-        _generateAmortizationSchedule(loanAmount, monthlyRate, monthlyPayment, numberOfPayments);
+        _generateAmortizationSchedule(
+          loanAmount,
+          monthlyRate,
+          monthlyPayment,
+          numberOfPayments,
+        );
       });
     } catch (e) {
       _resetCalculations();
     }
   }
-  
+
   void _resetCalculations() {
     setState(() {
       _monthlyPayment = 0.0;
@@ -149,46 +165,53 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       _paymentSchedule = [];
     });
   }
-  
+
   void _generateAmortizationSchedule(
-      double loanAmount,
-      double monthlyRate,
-      double monthlyPayment,
-      int totalPayments) {
+    double loanAmount,
+    double monthlyRate,
+    double monthlyPayment,
+    int totalPayments,
+  ) {
     double remainingBalance = loanAmount;
     List<PaymentScheduleItem> schedule = [];
-    
-    for (int paymentNumber = 1; paymentNumber <= totalPayments; paymentNumber++) {
+
+    for (
+      int paymentNumber = 1;
+      paymentNumber <= totalPayments;
+      paymentNumber++
+    ) {
       // Calculate interest for this period
       final interestPayment = remainingBalance * monthlyRate;
-      
+
       // Calculate principal for this period
       final principalPayment = monthlyPayment - interestPayment;
-      
+
       // Update remaining balance
       remainingBalance = remainingBalance - principalPayment;
-      
+
       // Ensure the final payment doesn't result in negative balance due to floating point precision
       if (paymentNumber == totalPayments) {
         remainingBalance = 0;
       }
-      
+
       // Add to schedule
-      schedule.add(PaymentScheduleItem(
-        paymentNumber: paymentNumber,
-        principalPayment: principalPayment,
-        interestPayment: interestPayment,
-        remainingBalance: remainingBalance < 0 ? 0 : remainingBalance,
-      ));
+      schedule.add(
+        PaymentScheduleItem(
+          paymentNumber: paymentNumber,
+          principalPayment: principalPayment,
+          interestPayment: interestPayment,
+          remainingBalance: remainingBalance < 0 ? 0 : remainingBalance,
+        ),
+      );
     }
-    
+
     _paymentSchedule = schedule;
   }
 
   void _updateLoanType(String loanType) {
     setState(() {
       _selectedLoanType = loanType;
-      
+
       // Set default values based on loan type
       switch (loanType) {
         case 'mortgage':
@@ -212,24 +235,30 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
           _loanTermYearsController.text = '10';
           break;
       }
-      
+
       _calculateLoan();
     });
   }
 
   String _formatCurrency(double amount) {
-    return '\$${amount.toStringAsFixed(2).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
-    )}';
+    return '\$${amount.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return AppScaffold(
       title: t.loan_calculator,
+      actions: [
+        FavoriteButton(
+          calculatorItem: FavoriteCalcItem(
+            title: t.loan_calculator,
+            routeName: LoanCalculatorRoute.name,
+            icon: Icons.account_balance,
+          ),
+        ),
+      ],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -250,22 +279,38 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     Text(
                       t.loan_type,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(height: 16.h),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildLoanTypeButton('mortgage', Icons.home, t.mortgage),
+                          _buildLoanTypeButton(
+                            'mortgage',
+                            Icons.home,
+                            t.mortgage,
+                          ),
                           SizedBox(width: 12.w),
-                          _buildLoanTypeButton('auto', Icons.directions_car, t.auto_loan),
+                          _buildLoanTypeButton(
+                            'auto',
+                            Icons.directions_car,
+                            t.auto_loan,
+                          ),
                           SizedBox(width: 12.w),
-                          _buildLoanTypeButton('personal', Icons.account_balance_wallet, t.personal_loan),
+                          _buildLoanTypeButton(
+                            'personal',
+                            Icons.account_balance_wallet,
+                            t.personal_loan,
+                          ),
                           SizedBox(width: 12.w),
-                          _buildLoanTypeButton('student', Icons.school, t.student_loan),
+                          _buildLoanTypeButton(
+                            'student',
+                            Icons.school,
+                            t.student_loan,
+                          ),
                         ],
                       ),
                     ),
@@ -273,9 +318,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                 ),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Input Card
             Card(
               elevation: 0,
@@ -292,19 +337,24 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     Text(
                       t.loan_amount,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     TextField(
                       controller: _loanAmountController,
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         hintText: '0',
                         prefixIcon: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          child: Icon(Icons.attach_money, color: colorScheme.primary),
+                          child: Icon(
+                            Icons.attach_money,
+                            color: colorScheme.primary,
+                          ),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.r),
@@ -317,39 +367,49 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                         _ThousandsSeparatorInputFormatter(),
                       ],
                     ),
-                    
+
                     // Divider
                     Divider(height: 32.h),
-                    
+
                     // Interest Rate
                     Text(
                       t.annual_interest_rate,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     TextField(
                       controller: _interestRateController,
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         hintText: '0',
                         suffixIcon: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          child: Icon(Icons.percent, color: colorScheme.primary),
+                          child: Icon(
+                            Icons.percent,
+                            color: colorScheme.primary,
+                          ),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.r),
                           borderSide: BorderSide(color: colorScheme.outline),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 14.h,
+                          horizontal: 16.w,
+                        ),
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}'),
+                        ),
                       ],
                     ),
-                    
+
                     // Quick interest rate buttons
                     SizedBox(height: 8.h),
                     SingleChildScrollView(
@@ -368,17 +428,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                         ],
                       ),
                     ),
-                    
+
                     // Divider
                     Divider(height: 32.h),
-                    
+
                     // Loan Term in Years
                     Text(
                       t.loan_term_years,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     TextField(
@@ -396,18 +456,22 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                             ),
                           ),
                         ),
-                        suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                        suffixIconConstraints: BoxConstraints(
+                          minWidth: 0,
+                          minHeight: 0,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.r),
                           borderSide: BorderSide(color: colorScheme.outline),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 14.h,
+                          horizontal: 16.w,
+                        ),
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
-                    
+
                     // Quick term buttons
                     SizedBox(height: 8.h),
                     SingleChildScrollView(
@@ -428,9 +492,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                 ),
               ),
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             // Results Card
             if (_monthlyPayment > 0)
               Card(
@@ -446,15 +510,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     children: [
                       Text(
                         t.payment_details,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
                         textAlign: TextAlign.center,
                       ),
-                      
+
                       SizedBox(height: 24.h),
-                      
+
                       // Monthly Payment
                       Container(
                         padding: EdgeInsets.all(16.w),
@@ -467,29 +533,34 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                             Text(
                               t.monthly_payment,
                               style: TextStyle(
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                color: colorScheme.onPrimaryContainer
+                                    .withOpacity(0.8),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             SizedBox(height: 4.h),
                             Text(
                               _formatCurrency(_monthlyPayment),
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.primary,
-                                  ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       SizedBox(height: 24.h),
-                      
+
                       // Total Payment and Interest
                       Container(
                         padding: EdgeInsets.all(16.w),
                         decoration: BoxDecoration(
-                          color: colorScheme.onPrimaryContainer.withOpacity(0.08),
+                          color: colorScheme.onPrimaryContainer.withOpacity(
+                            0.08,
+                          ),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Column(
@@ -501,7 +572,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 Text(
                                   t.total_payment,
                                   style: TextStyle(
-                                    color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                    color: colorScheme.onPrimaryContainer
+                                        .withOpacity(0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -514,9 +586,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             SizedBox(height: 8.h),
-                            
+
                             // Total Interest
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -524,7 +596,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 Text(
                                   t.total_interest,
                                   style: TextStyle(
-                                    color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                    color: colorScheme.onPrimaryContainer
+                                        .withOpacity(0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -537,9 +610,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             SizedBox(height: 8.h),
-                            
+
                             // Principal
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -547,12 +620,20 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 Text(
                                   t.principal_amount,
                                   style: TextStyle(
-                                    color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                    color: colorScheme.onPrimaryContainer
+                                        .withOpacity(0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
-                                  _formatCurrency(double.parse(_loanAmountController.text.replaceAll(',', ''))),
+                                  _formatCurrency(
+                                    double.parse(
+                                      _loanAmountController.text.replaceAll(
+                                        ',',
+                                        '',
+                                      ),
+                                    ),
+                                  ),
                                   style: TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.w600,
@@ -560,9 +641,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             SizedBox(height: 16.h),
-                            
+
                             // Loan Term
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -570,7 +651,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 Text(
                                   t.loan_term,
                                   style: TextStyle(
-                                    color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                    color: colorScheme.onPrimaryContainer
+                                        .withOpacity(0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -586,7 +668,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                           ],
                         ),
                       ),
-                      
+
                       // Chart
                       if (_pieChartData.isNotEmpty) ...[
                         SizedBox(height: 24.h),
@@ -594,7 +676,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                           height: 200.h,
                           padding: EdgeInsets.all(16.w),
                           decoration: BoxDecoration(
-                            color: colorScheme.onPrimaryContainer.withOpacity(0.08),
+                            color: colorScheme.onPrimaryContainer.withOpacity(
+                              0.08,
+                            ),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Row(
@@ -622,7 +706,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                           ),
                         ),
                       ],
-                      
+
                       // Copy button
                       SizedBox(height: 16.h),
                       OutlinedButton.icon(
@@ -643,21 +727,22 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                             ),
                           );
                         },
-                        icon: Icon(
-                          Icons.copy,
-                          size: 18.sp,
-                        ),
+                        icon: Icon(Icons.copy, size: 18.sp),
                         label: Text(t.copy_summary),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colorScheme.onPrimaryContainer,
-                          side: BorderSide(color: colorScheme.onPrimaryContainer.withOpacity(0.5)),
+                          side: BorderSide(
+                            color: colorScheme.onPrimaryContainer.withOpacity(
+                              0.5,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-            
+
             // Amortization Schedule
             if (_paymentSchedule.isNotEmpty) ...[
               SizedBox(height: 24.h),
@@ -677,10 +762,12 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                         children: [
                           Text(
                             t.amortization_schedule,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           TextButton(
                             onPressed: () {
@@ -690,23 +777,23 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                             },
                             child: Text(
                               _showFullSchedule ? t.show_less : t.show_more,
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                              ),
+                              style: TextStyle(color: colorScheme.primary),
                             ),
                           ),
                         ],
                       ),
-                      
+
                       SizedBox(height: 8.h),
-                      
+
                       // Schedule header
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 8.h),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: colorScheme.onSurfaceVariant.withOpacity(0.2),
+                              color: colorScheme.onSurfaceVariant.withOpacity(
+                                0.2,
+                              ),
                             ),
                           ),
                         ),
@@ -755,14 +842,15 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                           ],
                         ),
                       ),
-                      
+
                       // Schedule rows
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _showFullSchedule
-                            ? _paymentSchedule.length
-                            : min(12, _paymentSchedule.length),
+                        itemCount:
+                            _showFullSchedule
+                                ? _paymentSchedule.length
+                                : min(12, _paymentSchedule.length),
                         itemBuilder: (context, index) {
                           final item = _paymentSchedule[index];
                           return Container(
@@ -770,7 +858,8 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                  color: colorScheme.onSurfaceVariant.withOpacity(0.1),
+                                  color: colorScheme.onSurfaceVariant
+                                      .withOpacity(0.1),
                                 ),
                               ),
                             ),
@@ -780,9 +869,7 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                                   flex: 1,
                                   child: Text(
                                     '${item.paymentNumber}',
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                    ),
+                                    style: TextStyle(fontSize: 12.sp),
                                   ),
                                 ),
                                 Expanded(
@@ -809,9 +896,7 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                                   flex: 2,
                                   child: Text(
                                     _formatCurrency(item.remainingBalance),
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                    ),
+                                    style: TextStyle(fontSize: 12.sp),
                                   ),
                                 ),
                               ],
@@ -819,8 +904,9 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                           );
                         },
                       ),
-                      
-                      if (!_showFullSchedule && _paymentSchedule.length > 12) ...[
+
+                      if (!_showFullSchedule &&
+                          _paymentSchedule.length > 12) ...[
                         SizedBox(height: 16.h),
                         Center(
                           child: OutlinedButton(
@@ -832,7 +918,10 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                             style: OutlinedButton.styleFrom(
                               foregroundColor: colorScheme.primary,
                               side: BorderSide(color: colorScheme.primary),
-                              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24.w,
+                                vertical: 8.h,
+                              ),
                             ),
                             child: Text(t.view_full_schedule),
                           ),
@@ -843,18 +932,18 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
                 ),
               ),
             ],
-            
+
             SizedBox(height: 24.h),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildLoanTypeButton(String type, IconData icon, String label) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _selectedLoanType == type;
-    
+
     return InkWell(
       onTap: () => _updateLoanType(type),
       borderRadius: BorderRadius.circular(8.r),
@@ -881,7 +970,8 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
               label,
               style: TextStyle(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                color:
+                    isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
                 fontSize: 12.sp,
               ),
             ),
@@ -890,17 +980,18 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
       ),
     );
   }
-  
+
   Widget _buildQuickRateButton(String rate) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _interestRateController.text == rate;
-    
+
     return OutlinedButton(
       onPressed: () {
         _interestRateController.text = rate;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(
@@ -911,17 +1002,18 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
       child: Text('$rate%'),
     );
   }
-  
+
   Widget _buildQuickTermButton(String years) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _loanTermYearsController.text == years;
-    
+
     return OutlinedButton(
       onPressed: () {
         _loanTermYearsController.text = years;
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+        foregroundColor:
+            isSelected ? colorScheme.onPrimary : colorScheme.primary,
         backgroundColor: isSelected ? colorScheme.primary : null,
         side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
         shape: RoundedRectangleBorder(
@@ -932,20 +1024,17 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
       child: Text('$years ${t.years}'),
     );
   }
-  
+
   Widget _buildLegendItem(String label, Color color) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 16.w,
           height: 16.w,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 8.w),
         Text(
@@ -963,29 +1052,32 @@ ${t.total_interest}: ${_formatCurrency(_totalInterest)}
 // Custom formatter for thousands separator
 class _ThousandsSeparatorInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.text.isEmpty) {
       return newValue;
     }
-    
+
     // Only process if the user has done something
     if (oldValue.text.length == newValue.text.length) {
       return newValue;
     }
-    
+
     // Handle backspace/delete
     if (oldValue.text.length > newValue.text.length) {
       return newValue;
     }
-    
+
     final regExp = RegExp(r'[^\d]');
     final onlyNumbers = newValue.text.replaceAll(regExp, '');
-    
+
     final formatted = onlyNumbers.replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},'
+      (Match m) => '${m[1]},',
     );
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -999,7 +1091,7 @@ class PaymentScheduleItem {
   final double principalPayment;
   final double interestPayment;
   final double remainingBalance;
-  
+
   PaymentScheduleItem({
     required this.paymentNumber,
     required this.principalPayment,

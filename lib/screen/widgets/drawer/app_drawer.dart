@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:simply_calculator/constants/app_const.dart';
@@ -9,7 +10,6 @@ import 'package:simply_calculator/gen/assets.gen.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
-import 'package:simply_calculator/screen/widgets/dialog/feedback_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -46,6 +46,22 @@ class _AppDrawerState extends State<AppDrawer> {
                 _buildAppHeader(colorScheme),
 
                 SizedBox(height: 24.h),
+
+                // Favorites section
+                BlocBuilder<AppCubit, AppState>(
+                  builder: (context, state) {
+                    if (getIt<AppCubit>().state.favorites.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildFavoritesSection(),
+                          SizedBox(height: 16.h),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
 
                 // Main Navigation
                 _buildSection(
@@ -266,6 +282,27 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  Widget _buildFavoritesSection() {
+    final appCubit = getIt<AppCubit>();
+    final favorites = appCubit.state.favorites;
+
+    return _buildSection(
+      favorites
+          .map(
+            (favorite) => _buildSettingItem(
+              icon: favorite.icon,
+              title: favorite.title,
+              onTap: () {
+                context.router.push(NamedRoute(favorite.routeName));
+              },
+            ),
+          )
+          .toList(),
+      t.favorites,
+      Icons.star_rounded,
+    );
+  }
+
   Widget _buildSection(
     List<Widget> children,
     String title,
@@ -315,6 +352,7 @@ class _AppDrawerState extends State<AppDrawer> {
     String? subtitle,
     Widget? trailing,
     VoidCallback? onTap,
+    Color? iconColor, // Add this parameter
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -327,7 +365,11 @@ class _AppDrawerState extends State<AppDrawer> {
           color: colorScheme.secondaryContainer,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, size: 24, color: colorScheme.onSecondaryContainer),
+        child: Icon(
+          icon,
+          size: 24,
+          color: iconColor ?? colorScheme.onSecondaryContainer,
+        ),
       ),
       title: Text(
         title,
