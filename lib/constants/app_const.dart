@@ -62,4 +62,15 @@ class AppConst {
     {'name': 'Italiano', 'code': 'it', 'flag': '🇮🇹'},
     {'name': 'Urdu', 'code': 'ur', 'flag': '🇵🇰'},
   ];
+
+  static const List<String> availableFonts = [
+    'JetBrainsMono',
+    'RobotoMono',
+    'SourceCodePro',
+    'NotoSerif',
+    'RobotoSlab',
+    'Merriweather',
+    'Quicksand',
+    'DancingScript',
+  ];
 }

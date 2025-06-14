@@ -8,6 +8,7 @@ import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/gen/assets.gen.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
+import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
 import 'package:simply_calculator/screen/widgets/dialog/feedback_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -134,6 +135,34 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       onTap: () {
                         context.pushRoute(const LanguageRoute());
+                      },
+                    ),
+
+                    // Font settings
+                    _buildSettingItem(
+                      icon: Icons.font_download_outlined,
+                      title: t.font,
+                      subtitle: t.choose_app_font,
+                      trailing: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          getIt<AppCubit>().state.fontFamily ?? 'Default',
+                          style: TextStyle(
+                            fontFamily: getIt<AppCubit>().state.fontFamily,
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        AppBottomSheet.showFontSelected(context: context);
                       },
                     ),
                   ],
@@ -378,7 +407,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           SizedBox(height: 4.h),
           Text(
-            "© 2023 Simply Crafted Studio",
+            "© 2025 Simply Crafted Studio",
             style: TextStyle(
               fontSize: 12.sp,
               color: Theme.of(context).colorScheme.onSurfaceVariant,

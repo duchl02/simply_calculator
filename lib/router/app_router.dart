@@ -20,7 +20,6 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: ThemeSettingsRoute.page),
     AutoRoute(page: UnitConverterRoute.page),
     AutoRoute(page: ToolsHubRoute.page),
-    AutoRoute(page: CurrencyConverterRoute.page),
     AutoRoute(page: DiscountCalculatorRoute.page),
     AutoRoute(page: TipCalculatorRoute.page),
     AutoRoute(page: DateCalculatorRoute.page),

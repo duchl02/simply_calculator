@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:simply_calculator/constants/app_const.dart';
+import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/core/extensions/num_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/screen/widgets/button/app_filled_button.dart';
 
@@ -157,6 +161,105 @@ class AppBottomSheet {
           ),
         );
       },
+    );
+  }
+
+  static Future<void> showFontSelected({required BuildContext context}) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    final appCubit = getIt<AppCubit>();
+    final currentFont = appCubit.state.fontFamily;
+
+    final List<String> availableFonts = [
+      AppConst.getPlatformFontFamily(),
+      ...AppConst.availableFonts,
+    ];
+    return AppBottomSheet.show(
+      context: context,
+      title: t.select_font,
+      initialChildSize: 0.6,
+      maxChildSize: 0.95,
+      enableActions: false,
+      backgroundColor: colorScheme.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8.h),
+
+          ...availableFonts.map((font) {
+            final isSelected = currentFont == font;
+
+            return InkWell(
+              onTap: () {
+                appCubit.setFontFamily(font);
+                Navigator.pop(context);
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+                margin: EdgeInsets.only(bottom: 8.h),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected
+                          ? colorScheme.primaryContainer
+                          : colorScheme.surfaceVariant.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      isSelected
+                          ? Border.all(color: colorScheme.primary)
+                          : null,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            font,
+                            style: TextStyle(
+                              fontFamily: font,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16.sp,
+                              color:
+                                  isSelected
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            t.sample_text,
+                            style: TextStyle(
+                              fontFamily: font,
+                              fontSize: 14.sp,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: colorScheme.onPrimary,
+                          size: 16.sp,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+
+          SizedBox(height: 16.h),
+        ],
+      ),
     );
   }
 }

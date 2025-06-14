@@ -417,5 +417,9 @@
     "credits": "credits",
     "grade_points": "Grade Points",
     "mathematics": "Mathematics",
-    "computer_science": "Computer Science"
+    "computer_science": "Computer Science",
+    "font": "Font",
+    "select_font": "Select Font",
+    "sample_text_text": "The quick brown fox jumps over the lazy dog",
+    "choose_app_font": "Choose how your app looks"
 }
