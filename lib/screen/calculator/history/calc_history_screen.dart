@@ -2,7 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/calculator/history/cubit/calc_history_cubit.dart';
 import 'package:simply_calculator/screen/calculator/widgets/empty_history_widget.dart';
 import 'package:simply_calculator/screen/calculator/widgets/group_calc_history_widget.dart';
@@ -23,6 +25,7 @@ class _CalcHistoryScreenState extends State<CalcHistoryScreen> {
   @override
   void initState() {
     _cubit = CalcHistoryCubit();
+    FeatureTipsManager.markFeatureAsUsed(CalcHistoryRoute.name);
     super.initState();
   }
 
@@ -42,20 +45,22 @@ class _CalcHistoryScreenState extends State<CalcHistoryScreen> {
                 return Column(
                   children: [
                     Expanded(
-                      child: Padding(
+                      child: ListView(
                         padding: const EdgeInsets.all(16),
-                        child: GroupCalcHistoryWidget(
-                          groupedHistory: state.history,
-                          onItemTap: (item) {
-                            state.isInSelectionMode
-                                ? _cubit.toggleSelectItem(item)
-                                : AutoRouter.of(context).pop(item);
-                          },
-                          onItemLongPress: (item) {
-                            _cubit.toggleSelectItem(item);
-                          },
-                          selectedItems: state.selectedItem,
-                        ),
+                        children: [
+                          GroupCalcHistoryWidget(
+                            groupedHistory: state.history,
+                            onItemTap: (item) {
+                              state.isInSelectionMode
+                                  ? _cubit.toggleSelectItem(item)
+                                  : AutoRouter.of(context).pop(item);
+                            },
+                            onItemLongPress: (item) {
+                              _cubit.toggleSelectItem(item);
+                            },
+                            selectedItems: state.selectedItem,
+                          ),
+                        ],
                       ),
                     ),
                     if (state.historyItem.isNotEmpty)

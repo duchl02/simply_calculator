@@ -29,6 +29,14 @@ class UnitConversionUtil {
         return _convertTime(value, fromUnit.shortName, toUnit.shortName);
       case UnitCategory.volume:
         return _convertVolume(value, fromUnit.shortName, toUnit.shortName);
+      case UnitCategory.length:
+        return _convertLength(value, fromUnit.shortName, toUnit.shortName);
+      case UnitCategory.mass:
+        return _convertMass(value, fromUnit.shortName, toUnit.shortName);
+      case UnitCategory.area:
+        return _convertArea(value, fromUnit.shortName, toUnit.shortName);
+      case UnitCategory.pressure: // Thêm trường hợp này
+        return _convertPressure(value, fromUnit.shortName, toUnit.shortName);
       default:
         // ĐẢM BẢO CÔNG THỨC CHÍNH XÁC
         return value * fromUnit.conversionFactor / toUnit.conversionFactor;
@@ -338,35 +346,187 @@ class UnitConversionUtil {
     }
   }
 
+  /// Chuyển đổi độ dài
+  static double _convertLength(double value, String from, String to) {
+    // Chuyển tất cả về mét trước
+    double meters;
+
+    switch (from) {
+      case 'm':
+        meters = value;
+        break;
+      case 'km':
+        meters = value * 1000;
+        break;
+      case 'cm':
+        meters = value * 0.01;
+        break;
+      case 'mm':
+        meters = value * 0.001;
+        break;
+      case 'mi':
+        meters = value * 1609.34;
+        break;
+      case 'yd':
+        meters = value * 0.9144;
+        break;
+      case 'ft':
+        meters = value * 0.3048;
+        break;
+      case 'in':
+        meters = value * 0.0254;
+        break;
+      default:
+        meters = value;
+        break;
+    }
+
+    // Chuyển từ mét sang đơn vị đích
+    switch (to) {
+      case 'm':
+        return meters;
+      case 'km':
+        return meters / 1000;
+      case 'cm':
+        return meters / 0.01;
+      case 'mm':
+        return meters / 0.001;
+      case 'mi':
+        return meters / 1609.34;
+      case 'yd':
+        return meters / 0.9144;
+      case 'ft':
+        return meters / 0.3048;
+      case 'in':
+        return meters / 0.0254;
+      default:
+        return meters;
+    }
+  }
+
+  /// Chuyển đổi khối lượng
+  static double _convertMass(double value, String from, String to) {
+    // Chuyển tất cả về kilogram trước
+    double kilograms;
+
+    switch (from) {
+      case 'kg':
+        kilograms = value;
+        break;
+      case 'g':
+        kilograms = value * 0.001;
+        break;
+      case 'mg':
+        kilograms = value * 1e-6;
+        break;
+      case 't':
+        kilograms = value * 1000;
+        break;
+      case 'lb':
+        kilograms = value * 0.453592;
+        break;
+      case 'oz':
+        kilograms = value * 0.0283495;
+        break;
+      default:
+        kilograms = value;
+        break;
+    }
+
+    // Chuyển từ kilogram sang đơn vị đích
+    switch (to) {
+      case 'kg':
+        return kilograms;
+      case 'g':
+        return kilograms / 0.001;
+      case 'mg':
+        return kilograms / 1e-6;
+      case 't':
+        return kilograms / 1000;
+      case 'lb':
+        return kilograms / 0.453592;
+      case 'oz':
+        return kilograms / 0.0283495;
+      default:
+        return kilograms;
+    }
+  }
+
+  /// Chuyển đổi diện tích
+  static double _convertArea(double value, String from, String to) {
+    // Chuyển tất cả về mét vuông trước
+    double squareMeters;
+
+    switch (from) {
+      case 'm²':
+        squareMeters = value;
+        break;
+      case 'km²':
+        squareMeters = value * 1000000;
+        break;
+      case 'cm²':
+        squareMeters = value * 0.0001;
+        break;
+      case 'mm²':
+        squareMeters = value * 1e-6;
+        break;
+      case 'mi²':
+        squareMeters = value * 2.58999e6;
+        break;
+      case 'yd²':
+        squareMeters = value * 0.836127;
+        break;
+      case 'ft²':
+        squareMeters = value * 0.092903;
+        break;
+      case 'in²':
+        squareMeters = value * 0.00064516;
+        break;
+      case 'ac':
+        squareMeters = value * 4046.86;
+        break;
+      case 'ha':
+        squareMeters = value * 10000;
+        break;
+      default:
+        squareMeters = value;
+        break;
+    }
+
+    // Chuyển từ mét vuông sang đơn vị đích
+    switch (to) {
+      case 'm²':
+        return squareMeters;
+      case 'km²':
+        return squareMeters / 1000000;
+      case 'cm²':
+        return squareMeters / 0.0001;
+      case 'mm²':
+        return squareMeters / 1e-6;
+      case 'mi²':
+        return squareMeters / 2.58999e6;
+      case 'yd²':
+        return squareMeters / 0.836127;
+      case 'ft²':
+        return squareMeters / 0.092903;
+      case 'in²':
+        return squareMeters / 0.00064516;
+      case 'ac':
+        return squareMeters / 4046.86;
+      case 'ha':
+        return squareMeters / 10000;
+      default:
+        return squareMeters;
+    }
+  }
+
   /// Định dạng kết quả một cách phù hợp dựa trên loại đơn vị
   static String formatResult(double value, UnitCategory category) {
-    // Xử lý số thập phân khác nhau cho từng category
     int decimals;
 
     switch (category) {
-      case UnitCategory.length:
-      case UnitCategory.mass:
-      case UnitCategory.volume:
-      case UnitCategory.area:
-        decimals = 4;
-        break;
-      case UnitCategory.temperature:
-        decimals = 2;
-        break;
-      case UnitCategory.time:
-      case UnitCategory.angle:
-        decimals = 3;
-        break;
-      case UnitCategory.data:
-        decimals = 8; // Có thể cần nhiều số thập phân cho chuyển đổi byte nhỏ
-        break;
       default:
-        decimals = 5;
-    }
-
-    // Xử lý đặc biệt cho các số rất lớn hoặc rất nhỏ
-    if ((value.abs() >= 1e9 || (value.abs() < 1e-5 && value != 0))) {
-      return value.toStringAsExponential(4);
+        decimals = 9;
     }
 
     // Định dạng số với số lượng chữ số thập phân phù hợp
@@ -613,6 +773,118 @@ class UnitConversionUtil {
         } else {
           return [1, 10, 100, 1000, 1000000]; // Đơn vị thập phân
         }
+    }
+  }
+
+  // Assuming square meter (m²) is the base unit with conversionFactor = 1
+  static final List<UnitItem> areaUnits = [
+    UnitItem(
+      name: 'Square Meter',
+      shortName: 'm²',
+      conversionFactor: 1.0, // Base unit
+    ),
+    UnitItem(
+      name: 'Square Kilometer',
+      shortName: 'km²',
+      conversionFactor: 0.000001, // 1 m² = 0.000001 km²
+    ),
+    UnitItem(
+      name: 'Square Centimeter',
+      shortName: 'cm²',
+      conversionFactor: 10000.0, // 1 m² = 10000 cm²
+    ),
+    UnitItem(
+      name: 'Square Millimeter',
+      shortName: 'mm²',
+      conversionFactor: 1000000.0, // 1 m² = 1000000 mm²
+    ),
+    UnitItem(
+      name: 'Square Mile',
+      shortName: 'mi²',
+      conversionFactor: 3.861e-7, // 1 m² = 3.861e-7 mi²
+    ),
+    UnitItem(
+      name: 'Square Yard',
+      shortName: 'yd²',
+      conversionFactor: 1.196, // 1 m² = 1.196 yd²
+    ),
+    UnitItem(
+      name: 'Square Foot',
+      shortName: 'ft²',
+      conversionFactor: 10.764, // 1 m² = 10.764 ft²
+    ),
+    UnitItem(
+      name: 'Square Inch',
+      shortName: 'in²',
+      conversionFactor: 1550.0, // 1 m² = 1550 in²
+    ),
+    UnitItem(
+      name: 'Hectare',
+      shortName: 'ha',
+      conversionFactor: 0.0001, // 1 m² = 0.0001 ha
+    ),
+    UnitItem(
+      name: 'Acre',
+      shortName: 'ac',
+      conversionFactor: 0.000247105, // 1 m² = 0.000247105 ac
+    ),
+  ];
+
+  /// Chuyển đổi áp suất
+  static double _convertPressure(double value, String from, String to) {
+    // Chuyển tất cả về pascal (Pa) trước
+    double pascals;
+
+    switch (from) {
+      case 'Pa':
+        pascals = value;
+        break;
+      case 'kPa':
+        pascals = value * 1000;
+        break;
+      case 'hPa':
+        pascals = value * 100;
+        break;
+      case 'MPa':
+        pascals = value * 1000000;
+        break;
+      case 'bar':
+        pascals = value * 100000;
+        break;
+      case 'atm':
+        pascals = value * 101325;
+        break;
+      case 'mmHg':
+        pascals = value * 133.322;
+        break;
+      case 'psi':
+        pascals = value * 6894.76;
+        break;
+      default:
+        pascals = value;
+        break;
+    }
+
+    // Chuyển từ pascal sang đơn vị đích
+    switch (to) {
+      case 'Pa':
+        return pascals;
+      case 'kPa':
+        return pascals / 1000;
+      case 'hPa':
+        return pascals / 100;
+      case 'MPa':
+        return pascals / 1000000;
+      case 'bar':
+        return pascals / 100000;
+      case 'atm':
+        return pascals / 101325;
+      case 'mmHg':
+        return pascals / 133.322;
+      case 'psi':
+        return pascals / 6894.76;
+      default:
+        return pascals;
     }
   }
 }

@@ -19,6 +19,7 @@ class AppDialog {
     String? leftButtonText,
     String? rightButtonText,
     VoidCallback? onRightButton,
+    VoidCallback? onLeftButton,
   }) async {
     await showModalBottomSheet(
       backgroundColor: Colors.transparent,
@@ -48,7 +49,7 @@ class AppDialog {
                     title,
                     style: context.textTheme.titleLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w600
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -80,7 +81,11 @@ class AppDialog {
                       Expanded(
                         child: AppFilledButton(
                           onTap: () {
-                            Navigator.pop(context);
+                            if (onLeftButton != null) {
+                              onLeftButton();
+                            } else {
+                              Navigator.pop(context);
+                            }
                           },
                           title: leftButtonText ?? t.cancel,
                           backgroundColor: Theme.of(

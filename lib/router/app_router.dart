@@ -27,5 +27,6 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: GpaCalculatorRoute.page),
     AutoRoute(page: BmiCalculatorRoute.page),
     AutoRoute(page: AgeCalculatorRoute.page),
+    AutoRoute(page: OnboardingRoute.page),
   ];
 }

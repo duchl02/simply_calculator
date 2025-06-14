@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -42,6 +43,8 @@ class _DateCalculatorScreenState extends State<DateCalculatorScreen>
     });
     _calculateDifference();
     _calculateDate();
+    FeatureTipsManager.markFeatureAsUsed(DateCalculatorRoute.name);
+
   }
 
   @override

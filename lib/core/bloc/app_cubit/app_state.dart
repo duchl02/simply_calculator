@@ -11,7 +11,7 @@ class AppState extends Equatable {
 
   const AppState({
     this.language = 'en',
-    this.theme = FlexScheme.flutterDash,
+    this.theme = FlexScheme.gold,
     this.isDarkMode = false,
     this.themeMode = ThemeMode.system,
     this.fontFamily,

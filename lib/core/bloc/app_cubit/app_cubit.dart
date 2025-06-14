@@ -95,7 +95,7 @@ class AppCubit extends Cubit<AppState> {
     final String? themeLocal = appRepository.getTheme();
     final FlexScheme theme = FlexScheme.values.firstWhere(
       (e) => e.name == themeLocal,
-      orElse: () => FlexScheme.flutterDash,
+      orElse: () => FlexScheme.gold,
     );
     emit(state.copyWith(theme: theme));
   }

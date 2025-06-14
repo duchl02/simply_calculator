@@ -9,7 +9,6 @@ import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/gen/assets.gen.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
-import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
 import 'package:simply_calculator/screen/widgets/snack_bar/app_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:upgrader/upgrader.dart';
@@ -50,20 +49,6 @@ class _AppDrawerState extends State<AppDrawer> {
                 SizedBox(height: 24.h),
 
                 // Favorites section
-                BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    if (getIt<AppCubit>().state.favorites.isNotEmpty) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildFavoritesSection(),
-                          SizedBox(height: 16.h),
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
 
                 // Settings section
                 _buildSection(
@@ -83,6 +68,20 @@ class _AppDrawerState extends State<AppDrawer> {
                 ),
 
                 SizedBox(height: 16.h),
+                BlocBuilder<AppCubit, AppState>(
+                  builder: (context, state) {
+                    if (getIt<AppCubit>().state.favorites.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildFavoritesSection(),
+                          SizedBox(height: 16.h),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
                 // Main Navigation
                 _buildSection(
                   [
@@ -393,7 +392,6 @@ class _AppDrawerState extends State<AppDrawer> {
       ),
     );
   }
-
 
   void _showUpdateChecker(BuildContext context) {
     AppSnackbar.showInfo(message: t.up_to_date);

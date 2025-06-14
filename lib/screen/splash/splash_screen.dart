@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/di/di.dart';
+import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 
 @RoutePage()
@@ -19,14 +20,20 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     appCubit.initial();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 0), () {
-        context.router.replace(const CalculatorRoute());
-      });
+      final isFirstOpenApp = getIt<AppRepository>().getFirstTimeOpenApp();
+      if (isFirstOpenApp == null) {
+        AutoRouter.of(context).replace(const OnboardingRoute());
+        getIt<AppRepository>().setFirstTimeOpenApp(
+          DateTime.now().millisecondsSinceEpoch,
+        );
+      } else {
+        AutoRouter.of(context).replace(const CalculatorRoute());
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Splash Screen')));
+    return const Scaffold(body: SizedBox());
   }
 }

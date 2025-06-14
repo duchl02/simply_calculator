@@ -7,6 +7,9 @@ class AppRouterObserver extends AutoRouterObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     super.didPush(route, previousRoute);
+    if (route.settings.name == null) {
+      return;
+    }
     LogX.log('${previousRoute?.settings.name} push to ${route.settings.name}');
     AnalyticsUtil.logScreen(
       screenName: route.settings.name ?? 'unknown_route',
@@ -19,6 +22,9 @@ class AppRouterObserver extends AutoRouterObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
+    if (route.settings.name == null) {
+      return;
+    }
     LogX.log('${previousRoute?.settings.name} pop to ${route.settings.name}');
     AnalyticsUtil.logScreen(
       screenName: route.settings.name ?? 'unknown_route',

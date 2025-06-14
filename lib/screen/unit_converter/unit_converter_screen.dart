@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -31,6 +32,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
   void initState() {
     super.initState();
     _categoriesScrollController = ScrollController();
+    FeatureTipsManager.markFeatureAsUsed(UnitConverterRoute.name);
   }
 
   @override
@@ -57,15 +59,6 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             builder: (context, state) {
               return AppScaffold(
                 title: t.unit_converter,
-                actions: [
-                  FavoriteButton(
-                    calculatorItem: FavoriteCalcItem(
-                      title: t.unit_converter,
-                      routeName: UnitConverterRoute.name,
-                      icon: Icons.swap_horiz,
-                    ),
-                  ),
-                ],
                 body: Column(
                   children: [
                     // Categories horizontal list

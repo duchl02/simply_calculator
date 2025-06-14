@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -21,6 +22,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    FeatureTipsManager.markFeatureAsUsed(SettingsRoute.name);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

@@ -2,8 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/core/style/flex_theme/flex_scheme.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
+import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/scaffold/app_scaffold.dart';
 
 @RoutePage()
@@ -44,6 +46,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
   void initState() {
     super.initState();
     _initCurrentTheme();
+    FeatureTipsManager.markFeatureAsUsed(ThemeSettingsRoute.name);
   }
 
   void _initCurrentTheme() {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/string_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
@@ -50,6 +51,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       if (routerInit != null && routerInit != CalculatorRoute.name) {
         context.router.push(NamedRoute(routerInit));
       }
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          FeatureTipsManager.maybeShowRandomTip(context);
+        }
+      });
     });
     _expressionController = TextEditingController(text: expression);
     _expressionController.addListener(_updateExpressionFromController);
@@ -102,9 +108,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       key: _scaffoldKey,
       drawer: const AppDrawer(),
       appBar: AppBar(
-        backgroundColor: context.colorScheme.secondaryContainer.withOpacity(
-          0.7,
-        ),
+        backgroundColor: context.colorScheme.primary.withOpacity(0.1),
         actions: [
           IconButton(
             onPressed: () {
@@ -173,7 +177,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         ],
       ),
       body: Container(
-        color: context.colorScheme.secondaryContainer.withOpacity(0.7),
+        color: context.colorScheme.primary.withOpacity(0.1),
         child: Column(
           children: [
             Expanded(

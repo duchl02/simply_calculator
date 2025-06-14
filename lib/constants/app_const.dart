@@ -47,7 +47,6 @@ class AppConst {
     {'name': '简体中文', 'code': 'zh', 'flag': '🇨🇳'},
     {'code': 'ar', 'name': 'العربية', 'flag': '🇸🇦'},
     {'name': 'Português', 'code': 'pt', 'flag': '🇵🇹'},
-    {'name': 'বাংলা', 'code': 'bn', 'flag': '🇧🇩'},
     {'name': 'Русский', 'code': 'ru', 'flag': '🇷🇺'},
     {'name': 'Indonesia', 'code': 'id', 'flag': '🇮🇩'},
     {'name': 'Українська', 'code': 'uk', 'flag': '🇺🇦'},
@@ -60,7 +59,6 @@ class AppConst {
     {'name': 'Malay', 'code': 'ms', 'flag': '🇲🇾'},
     {'name': 'Deutsch', 'code': 'de', 'flag': '🇩🇪'},
     {'name': 'Italiano', 'code': 'it', 'flag': '🇮🇹'},
-    {'name': 'Urdu', 'code': 'ur', 'flag': '🇵🇰'},
   ];
 
   static const List<String> availableFonts = [
