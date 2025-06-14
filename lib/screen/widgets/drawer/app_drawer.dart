@@ -65,7 +65,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       subtitle: t.utility_calculators_desc,
                       icon: Icons.calculate_rounded,
                       onTap: () {
-                        // context.pushRoute(const ToolsHubRoute());
+                        context.pushRoute(const ToolsHubRoute());
                       },
                     ),
                   ],
@@ -147,14 +147,14 @@ class _AppDrawerState extends State<AppDrawer> {
                 _buildSection(
                   [
                     // Rate us
-                    _buildSettingItem(
-                      icon: Icons.star,
-                      title: t.rate_us,
-                      subtitle: t.support_by_rating,
-                      onTap: () {
-                        showRateAppDialog(context);
-                      },
-                    ),
+                    // _buildSettingItem(
+                    //   icon: Icons.star,
+                    //   title: t.rate_us,
+                    //   subtitle: t.support_by_rating,
+                    //   onTap: () {
+                    //     showRateAppDialog(context);
+                    //   },
+                    // ),
 
                     // Feedback
                     _buildSettingItem(

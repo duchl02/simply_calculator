@@ -15,6 +15,7 @@ class AppScaffold extends StatelessWidget {
     this.persistentFooterButtons,
     this.resizeToAvoidBottomInset,
     this.backgroundColor,
+    this.hasFeedbackButton = true,
   });
 
   final String? title;
@@ -25,6 +26,7 @@ class AppScaffold extends StatelessWidget {
   final Widget? persistentFooterButtons;
   final Widget? resizeToAvoidBottomInset;
   final Color? backgroundColor;
+  final bool hasFeedbackButton;
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +40,14 @@ class AppScaffold extends StatelessWidget {
                     ? Text(title!, style: context.textTheme.titleLarge)
                     : null,
             actions: [
-              IconButton(
-                onPressed: () {
-                  context.pushRoute(const FeedbackRoute());
-                },
-                icon: const Icon(Icons.bug_report_rounded),
-              ),
-              8.horizontalSpace,
+              if (hasFeedbackButton)
+                IconButton(
+                  onPressed: () {
+                    context.pushRoute(const FeedbackRoute());
+                  },
+                  icon: const Icon(Icons.bug_report_rounded),
+                ),
+              if (hasFeedbackButton) 8.horizontalSpace,
               ...actions ?? [],
             ],
           ),
