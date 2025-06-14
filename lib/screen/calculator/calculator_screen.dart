@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/string_extension.dart';
+import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
@@ -93,10 +94,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       drawer: const AppDrawer(),
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: context.colorScheme.secondaryContainer.withOpacity(
+          0.7,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
@@ -158,228 +160,240 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: isSimple ? 4 : 3,
-            child: CalculatorDisplay(
-              expressionController: _expressionController,
-              expression: expression,
-              result: result,
-              resultCur: resultCur,
-              isEndCalculation: isEndCalculation,
-              onExpressionChanged: (value) {
-                setState(() {
-                  expression = value;
-                  _calculateResult(fromEqual: false);
-                  _updateSelectionPosition();
-                });
-              },
-              onTap: () {
-                if (isEndCalculation) {
+      body: Container(
+        color: context.colorScheme.secondaryContainer.withOpacity(0.7),
+        child: Column(
+          children: [
+            Expanded(
+              flex: isSimple ? 4 : 3,
+              child: CalculatorDisplay(
+                expressionController: _expressionController,
+                expression: expression,
+                result: result,
+                resultCur: resultCur,
+                isEndCalculation: isEndCalculation,
+                onExpressionChanged: (value) {
                   setState(() {
-                    isEndCalculation = false;
-                    result = '';
+                    expression = value;
+                    _calculateResult(fromEqual: false);
+                    _updateSelectionPosition();
                   });
-                }
-                _updateSelectionPosition();
-              },
-              onSelectionChanged: (selection) {
-                _lastKnownSelection = selection;
-              },
-            ),
-          ),
-
-          // Mode controls
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                // Changing calculator mode
-                ElevatedButton.icon(
-                  onPressed: () {
+                },
+                onTap: () {
+                  if (isEndCalculation) {
                     setState(() {
-                      isSimple = !isSimple;
+                      isEndCalculation = false;
+                      result = '';
                     });
-                  },
-                  icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) {
-                      return ScaleTransition(
-                        scale: animation,
-                        child: FadeTransition(opacity: animation, child: child),
-                      );
+                  }
+                  _updateSelectionPosition();
+                },
+                onSelectionChanged: (selection) {
+                  _lastKnownSelection = selection;
+                },
+              ),
+            ),
+
+            // Mode controls
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  // Changing calculator mode
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        isSimple = !isSimple;
+                      });
                     },
-                    child: Icon(
-                      isSimple ? Icons.functions : Icons.calculate,
-                      key: ValueKey<bool>(isSimple),
-                      size: 24,
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        isSimple ? Icons.functions : Icons.calculate,
+                        key: ValueKey<bool>(isSimple),
+                        size: 24,
+                      ),
                     ),
-                  ),
-                  label: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Text(
-                      isSimple ? t.scientific : t.basic,
-                      key: ValueKey<bool>(isSimple),
-                      style: Theme.of(context).textTheme.titleMedium,
+                    label: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text(
+                        isSimple ? t.scientific : t.basic,
+                        key: ValueKey<bool>(isSimple),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onPrimaryContainer,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-
-                // Degree/Radian toggle
-                if (!isSimple)
-                  ElevatedButton(
-                    onPressed: _toggleDegreeRadianMode,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onPrimaryContainer,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      elevation: 1,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      isDegreeMode ? 'Deg' : 'Rad',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
                   ),
 
-                const Spacer(),
+                  const SizedBox(width: 8),
 
-                // Backspace button
-                AppFilledButton(
-                  onTap: () {
-                    setState(() {
-                      // Reset nếu đang ở trạng thái kết thúc phép tính
-                      if (isEndCalculation) {
-                        isEndCalculation = false;
-                        result = '';
-                      }
+                  // Degree/Radian toggle
+                  if (!isSimple)
+                    ElevatedButton(
+                      onPressed: _toggleDegreeRadianMode,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        isDegreeMode ? 'Deg' : 'Rad',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
 
-                      if (expression.isNotEmpty) {
-                        try {
-                          // Lấy vị trí con trỏ hiện tại
-                          final selection = _expressionController.selection;
+                  const Spacer(),
 
-                          // Trường hợp 1: Có vùng văn bản được chọn
-                          if (selection.isValid &&
-                              selection.start != selection.end) {
-                            final start = selection.start;
-                            final end = selection.end;
+                  // Backspace button
+                  AppFilledButton(
+                    onTap: () {
+                      setState(() {
+                        // Reset nếu đang ở trạng thái kết thúc phép tính
+                        if (isEndCalculation) {
+                          isEndCalculation = false;
+                          result = '';
+                        }
 
-                            // Xóa phần văn bản được chọn
-                            expression =
-                                expression.substring(0, start) +
-                                expression.substring(end);
+                        if (expression.isNotEmpty) {
+                          try {
+                            // Lấy vị trí con trỏ hiện tại
+                            final selection = _expressionController.selection;
 
-                            // Cập nhật controller trước
-                            _expressionController.text = expression;
+                            // Trường hợp 1: Có vùng văn bản được chọn
+                            if (selection.isValid &&
+                                selection.start != selection.end) {
+                              final start = selection.start;
+                              final end = selection.end;
 
-                            // Đặt lại vị trí con trỏ
-                            _expressionController.selection =
-                                TextSelection.collapsed(offset: start);
-                          }
-                          // Trường hợp 2: Không có vùng văn bản được chọn, xóa 1 ký tự trước con trỏ
-                          else {
-                            final cursorPosition =
-                                selection.isValid
-                                    ? selection.start
-                                    : expression.length;
-
-                            if (cursorPosition > 0) {
-                              // Xóa 1 ký tự trước con trỏ
+                              // Xóa phần văn bản được chọn
                               expression =
-                                  expression.substring(0, cursorPosition - 1) +
-                                  expression.substring(cursorPosition);
+                                  expression.substring(0, start) +
+                                  expression.substring(end);
 
                               // Cập nhật controller trước
                               _expressionController.text = expression;
 
                               // Đặt lại vị trí con trỏ
+                              _expressionController.selection =
+                                  TextSelection.collapsed(offset: start);
+                            }
+                            // Trường hợp 2: Không có vùng văn bản được chọn, xóa 1 ký tự trước con trỏ
+                            else {
+                              final cursorPosition =
+                                  selection.isValid
+                                      ? selection.start
+                                      : expression.length;
+
+                              if (cursorPosition > 0) {
+                                // Xóa 1 ký tự trước con trỏ
+                                expression =
+                                    expression.substring(
+                                      0,
+                                      cursorPosition - 1,
+                                    ) +
+                                    expression.substring(cursorPosition);
+
+                                // Cập nhật controller trước
+                                _expressionController.text = expression;
+
+                                // Đặt lại vị trí con trỏ
+                                _expressionController
+                                    .selection = TextSelection.collapsed(
+                                  offset: cursorPosition - 1,
+                                );
+                              }
+                            }
+
+                            // Lưu vị trí con trỏ mới
+                            _lastKnownSelection =
+                                _expressionController.selection;
+
+                            // Tính toán kết quả mới
+                            _calculateResult(fromEqual: false);
+                          } catch (e) {
+                            // Nếu có lỗi, xóa ký tự cuối cùng một cách đơn giản
+                            if (expression.isNotEmpty) {
+                              expression = expression.substring(
+                                0,
+                                expression.length - 1,
+                              );
+                              _expressionController.text = expression;
                               _expressionController
                                   .selection = TextSelection.collapsed(
-                                offset: cursorPosition - 1,
+                                offset: expression.length,
                               );
+                              _calculateResult(fromEqual: false);
                             }
                           }
-
-                          // Lưu vị trí con trỏ mới
-                          _lastKnownSelection = _expressionController.selection;
-
-                          // Tính toán kết quả mới
-                          _calculateResult(fromEqual: false);
-                        } catch (e) {
-                          // Nếu có lỗi, xóa ký tự cuối cùng một cách đơn giản
-                          if (expression.isNotEmpty) {
-                            expression = expression.substring(
-                              0,
-                              expression.length - 1,
-                            );
-                            _expressionController.text = expression;
-                            _expressionController
-                                .selection = TextSelection.collapsed(
-                              offset: expression.length,
-                            );
-                            _calculateResult(fromEqual: false);
-                          }
                         }
-                      }
-                    });
-                  },
-                  onLongPress: () {
-                    setState(() {
-                      result = '';
-                      expression = '';
-                      resultCur = '';
-                      _expressionController.clear();
-                      _lastKnownSelection = const TextSelection.collapsed(
-                        offset: 0,
-                      );
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 32,
+                      });
+                    },
+                    onLongPress: () {
+                      setState(() {
+                        result = '';
+                        expression = '';
+                        resultCur = '';
+                        _expressionController.clear();
+                        _lastKnownSelection = const TextSelection.collapsed(
+                          offset: 0,
+                        );
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 32,
+                    ),
+                    title: '⌫',
+                    textStyle: Theme.of(
+                      context,
+                    ).textTheme.displaySmall?.copyWith(
+                      height: 0,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
-                  title: '⌫',
-                  textStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    height: 0,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          // Calculator Keypad
-          Expanded(
-            flex: isSimple ? 6 : 7,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0).copyWith(top: 0),
-                child: CalculatorKeypad(
-                  isSimple: isSimple,
-                  onButtonPressed: onButtonPressed,
-                  scaleTextSize: scaleTextSize,
+            // Calculator Keypad
+            Expanded(
+              flex: isSimple ? 6 : 7,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0).copyWith(top: 0),
+                  child: CalculatorKeypad(
+                    isSimple: isSimple,
+                    onButtonPressed: onButtonPressed,
+                    scaleTextSize: scaleTextSize,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
