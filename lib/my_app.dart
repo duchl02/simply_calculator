@@ -11,6 +11,7 @@ import 'package:simply_calculator/global_variable.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.dart';
 import 'package:simply_calculator/router/app_router_observer.dart';
+import 'package:simply_calculator/widgets/app_update_checker.dart';
 
 import 'core/style/flex_color_scheme.dart';
 
@@ -55,20 +56,22 @@ class _MyAppState extends State<MyApp> {
             builder: (context, state) {
               appContext = context;
 
-              return MaterialApp.router(
-                theme: AppTheme.getLightTheme(),
-                themeMode:
-                    appCubit.state.isDarkMode
-                        ? ThemeMode.dark
-                        : ThemeMode.light,
-                darkTheme: AppTheme.getDarkTheme(),
-                routerConfig: _appRouter.config(
-                  navigatorObservers: () => [AppRouterObserver()],
+              return AppUpdateChecker(
+                child: MaterialApp.router(
+                  theme: AppTheme.getLightTheme(),
+                  themeMode:
+                      appCubit.state.isDarkMode
+                          ? ThemeMode.dark
+                          : ThemeMode.light,
+                  darkTheme: AppTheme.getDarkTheme(),
+                  routerConfig: _appRouter.config(
+                    navigatorObservers: () => [AppRouterObserver()],
+                  ),
+                  debugShowCheckedModeBanner: false,
+                  locale: TranslationProvider.of(context).flutterLocale,
+                  supportedLocales: AppLocaleUtils.supportedLocales,
+                  localizationsDelegates: GlobalMaterialLocalizations.delegates,
                 ),
-                debugShowCheckedModeBanner: false,
-                locale: TranslationProvider.of(context).flutterLocale,
-                supportedLocales: AppLocaleUtils.supportedLocales,
-                localizationsDelegates: GlobalMaterialLocalizations.delegates,
               );
             },
           ),

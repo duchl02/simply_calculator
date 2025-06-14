@@ -431,5 +431,11 @@
     "default_startup_screen": "Default Startup Screen",
     "choose_startup_screen": "Choose which screen to open at launch",
     "startup_screen_description": "Select the screen that will appear when you start the app",
-    "standard_calculator": "Standard Calculator"
+    "standard_calculator": "Standard Calculator",
+    "check_for_updates": "Check for Updates",
+    "check_for_new_version": "Check if a new version is available",
+    "update_available": "Update Available",
+    "update_now": "Update Now",
+    "up_to_date": "App is Up to Date",
+    "current_version": "Current version"
 }

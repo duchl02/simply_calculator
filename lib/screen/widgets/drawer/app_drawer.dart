@@ -10,7 +10,9 @@ import 'package:simply_calculator/gen/assets.gen.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/bottom_sheet/app_bottom_sheet.dart';
+import 'package:simply_calculator/screen/widgets/snack_bar/app_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:upgrader/upgrader.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
@@ -254,6 +256,16 @@ class _AppDrawerState extends State<AppDrawer> {
                           Uri.parse(AppConst.privacyPolicy),
                           mode: LaunchMode.externalApplication,
                         );
+                      },
+                    ),
+
+                    // Check for updates
+                    _buildSettingItem(
+                      icon: Icons.system_update_outlined,
+                      title: t.check_for_updates,
+                      subtitle: t.check_for_new_version,
+                      onTap: () {
+                        _showUpdateChecker(context);
                       },
                     ),
                   ],
@@ -669,5 +681,9 @@ class _AppDrawerState extends State<AppDrawer> {
         ],
       ),
     );
+  }
+
+  void _showUpdateChecker(BuildContext context) {
+    AppSnackbar.showInfo(message: t.up_to_date);
   }
 }

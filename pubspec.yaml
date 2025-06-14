@@ -48,6 +48,7 @@ dependencies:
   package_info_plus: ^8.3.0
   flutter_email_sender: ^7.0.0
   fl_chart: ^1.0.0
+  upgrader: ^11.4.0
 
   #
   math_expressions: ^2.7.0
