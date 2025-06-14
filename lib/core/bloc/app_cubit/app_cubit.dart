@@ -22,6 +22,7 @@ class AppCubit extends Cubit<AppState> {
     _initTheme();
     _initDarkMode();
     _initFavorites();
+    _initDefaultCalculator();
   }
 
   void setLanguage(String language) {
@@ -126,6 +127,15 @@ class AppCubit extends Cubit<AppState> {
 
   bool isFavorite(String routeName) {
     return state.favorites.any((fav) => fav.routeName == routeName);
+  }
+
+  void _initDefaultCalculator() {
+    final defaultCalculator = appRepository.getDefaultCalculator();
+    emit(state.copyWith(defaultCalculator: defaultCalculator));
+  }
+  void setDefaultCalculator(String routeName) {
+    emit(state.copyWith(defaultCalculator: routeName));
+    appRepository.setDefaultCalculator(routeName);
   }
 
   static String getLanguageName() {

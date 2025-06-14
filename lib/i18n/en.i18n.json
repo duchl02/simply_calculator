@@ -427,5 +427,9 @@
     "remove_from_favorites": "Remove from Favorites",
     "added_to_favorites": "Added to Favorites",
     "removed_from_favorites": "Removed from Favorites",
-    "no_favorites": "No Favorites Added"
+    "no_favorites": "No Favorites Added",
+    "default_startup_screen": "Default Startup Screen",
+    "choose_startup_screen": "Choose which screen to open at launch",
+    "startup_screen_description": "Select the screen that will appear when you start the app",
+    "standard_calculator": "Standard Calculator"
 }

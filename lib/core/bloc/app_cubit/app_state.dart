@@ -6,7 +6,7 @@ class AppState extends Equatable {
   final bool isDarkMode;
   final String? fontFamily;
   final ThemeMode? themeMode;
-  final FavoriteCalcItem? favoriteCalcItem;
+  final String? defaultCalculator;
   final List<FavoriteCalcItem> favorites;
 
   const AppState({
@@ -15,8 +15,8 @@ class AppState extends Equatable {
     this.isDarkMode = false,
     this.themeMode = ThemeMode.system,
     this.fontFamily,
-    this.favoriteCalcItem,
     this.favorites = const [],
+    this.defaultCalculator,
   });
 
   AppState copyWith({
@@ -25,8 +25,8 @@ class AppState extends Equatable {
     bool? isDarkMode,
     String? fontFamily,
     ThemeMode? themeMode,
-    FavoriteCalcItem? favoriteCalcItem,
     List<FavoriteCalcItem>? favorites,
+    String? defaultCalculator,
   }) {
     return AppState(
       language: language ?? this.language,
@@ -34,8 +34,8 @@ class AppState extends Equatable {
       isDarkMode: isDarkMode ?? this.isDarkMode,
       fontFamily: fontFamily ?? this.fontFamily,
       themeMode: themeMode ?? this.themeMode,
-      favoriteCalcItem: favoriteCalcItem ?? this.favoriteCalcItem,
       favorites: favorites ?? this.favorites,
+      defaultCalculator: defaultCalculator ?? this.defaultCalculator,
     );
   }
 
@@ -46,7 +46,7 @@ class AppState extends Equatable {
     isDarkMode,
     fontFamily,
     themeMode,
-    favoriteCalcItem,
     favorites,
+    defaultCalculator,
   ];
 }

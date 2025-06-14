@@ -12,6 +12,7 @@ class AppRepositoryImpl implements AppRepository {
   Future<void> setFirstTimeOpenApp(int time) {
     return localDataSource.setFirstTimeOpenApp(time);
   }
+
   @override
   int? getFirstTimeOpenApp() {
     return localDataSource.getFirstTimeOpenApp();
@@ -21,6 +22,7 @@ class AppRepositoryImpl implements AppRepository {
   Future<void> setLanguage(String language) {
     return localDataSource.setLanguage(language);
   }
+
   @override
   String getLanguage() {
     return localDataSource.getLanguage();
@@ -30,6 +32,7 @@ class AppRepositoryImpl implements AppRepository {
   Future<void> setTheme(String theme) {
     return localDataSource.setTheme(theme);
   }
+
   @override
   String? getTheme() {
     return localDataSource.getTheme();
@@ -39,15 +42,17 @@ class AppRepositoryImpl implements AppRepository {
   Future<void> setDarkMode(bool isDarkMode) {
     return localDataSource.setDarkMode(isDarkMode);
   }
+
   @override
   bool? getDarkMode() {
     return localDataSource.getDarkMode();
   }
-  
+
   @override
   Future<void> setFontFamily(String fontFamily) {
     return localDataSource.setFontFamily(fontFamily);
   }
+
   @override
   String getFontFamily() {
     return localDataSource.getFontFamily();
@@ -61,5 +66,15 @@ class AppRepositoryImpl implements AppRepository {
   @override
   List<FavoriteCalcItem> getFavoriteCalculator() {
     return localDataSource.getFavoriteCalculator();
+  }
+
+  @override
+  Future<void> setDefaultCalculator(String defaultCalculator) {
+    return localDataSource.setDefaultCalculator(defaultCalculator);
+  }
+
+  @override
+  String? getDefaultCalculator() {
+    return localDataSource.getDefaultCalculator();
   }
 }

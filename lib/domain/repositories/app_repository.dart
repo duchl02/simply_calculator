@@ -17,6 +17,8 @@ abstract class AppRepository {
   String getFontFamily();
 
   Future<void> setFavoriteCalculator(List<FavoriteCalcItem> item);
-
   List<FavoriteCalcItem> getFavoriteCalculator();
+
+  Future<void> setDefaultCalculator(String defaultCalculator);
+  String? getDefaultCalculator();
 }

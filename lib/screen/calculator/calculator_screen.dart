@@ -8,6 +8,7 @@ import 'package:simply_calculator/core/extensions/theme_extension.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/entities/calc_history_model.dart';
+import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/calculator/calc_history_service.dart';
@@ -39,12 +40,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   late TextEditingController _expressionController;
   String result = '';
   String resultCur = '';
-  TextSelection _lastKnownSelection = const TextSelection.collapsed(offset: 0);
   final _calculatorService = CalculatorService();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final routerInit = getIt<AppRepository>().getDefaultCalculator();
+      if (routerInit != null && routerInit != CalculatorRoute.name) {
+        context.router.push(NamedRoute(routerInit));
+      }
+    });
     _expressionController = TextEditingController(text: expression);
     _expressionController.addListener(_updateExpressionFromController);
     init();
@@ -100,6 +106,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           0.7,
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              context.pushRoute(const FeedbackRoute());
+            },
+            icon: const Icon(Icons.bug_report_rounded),
+          ),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () async {
@@ -188,9 +200,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   }
                   _updateSelectionPosition();
                 },
-                onSelectionChanged: (selection) {
-                  _lastKnownSelection = selection;
-                },
+                onSelectionChanged: (selection) {},
               ),
             ),
 
@@ -327,8 +337,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                             }
 
                             // Lưu vị trí con trỏ mới
-                            _lastKnownSelection =
-                                _expressionController.selection;
 
                             // Tính toán kết quả mới
                             _calculateResult(fromEqual: false);
@@ -356,9 +364,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         expression = '';
                         resultCur = '';
                         _expressionController.clear();
-                        _lastKnownSelection = const TextSelection.collapsed(
-                          offset: 0,
-                        );
                       });
                     },
                     borderRadius: BorderRadius.circular(12),
@@ -648,7 +653,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _expressionController.selection = TextSelection.collapsed(
           offset: newCursorPosition,
         );
-        _lastKnownSelection = _expressionController.selection;
       } catch (e) {
         // Xử lý lỗi
         isEndCalculation = false;
@@ -657,14 +661,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _expressionController.selection = TextSelection.collapsed(
           offset: expression.length,
         );
-        _lastKnownSelection = _expressionController.selection;
       }
     });
   }
 
-  void _updateSelectionPosition() {
-    _lastKnownSelection = _expressionController.selection;
-  }
+  void _updateSelectionPosition() {}
 
   void _calculateResult({required bool fromEqual}) {
     if (fromEqual && isEndCalculation) {

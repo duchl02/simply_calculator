@@ -25,7 +25,7 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   final _controller = TextEditingController();
-  String selectedType = 'suggestion';
+  String selectedType = 'bug';
   final List<File> _attachedImages = []; // Danh sách ảnh đính kèm
   final ImagePicker _picker = ImagePicker(); // Image picker
   final int maxImages = 3; // Số lượng ảnh tối đa

@@ -53,9 +53,12 @@ class AppLocalDataSource {
   }
 
   Future<void> setFavoriteCalculator(List<FavoriteCalcItem> items) async {
-    final List<String> jsonList = items
-        .map((item) => jsonEncode(item.toJson())) // Properly encode Map to JSON string
-        .toList();
+    final List<String> jsonList =
+        items
+            .map(
+              (item) => jsonEncode(item.toJson()),
+            ) // Properly encode Map to JSON string
+            .toList();
 
     await sharedPreferences.setStringList(
       LocalStorageKey.favoriteCalculator,
@@ -75,7 +78,6 @@ class AppLocalDataSource {
     return jsonList
         .map((jsonString) {
           try {
-            // Parse the JSON string into a Map
             final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
             return FavoriteCalcItem.fromJson(jsonMap);
           } catch (e) {
@@ -83,7 +85,18 @@ class AppLocalDataSource {
             return null;
           }
         })
-        .whereType<FavoriteCalcItem>() // Filter out any null values from errors
+        .whereType<FavoriteCalcItem>()
         .toList();
+  }
+
+  Future<void> setDefaultCalculator(String defaultCalculator) async {
+    await sharedPreferences.setString(
+      LocalStorageKey.defaultCalculator,
+      defaultCalculator,
+    );
+  }
+
+  String? getDefaultCalculator() {
+    return sharedPreferences.getString(LocalStorageKey.defaultCalculator);
   }
 }
