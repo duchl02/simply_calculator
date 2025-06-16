@@ -23,8 +23,8 @@ class AppLocalDataSource {
     await sharedPreferences.setString(LocalStorageKey.language, language);
   }
 
-  String getLanguage() {
-    return sharedPreferences.getString(LocalStorageKey.language) ?? 'en';
+  String? getLanguage() {
+    return sharedPreferences.getString(LocalStorageKey.language);
   }
 
   Future<void> setTheme(String theme) async {

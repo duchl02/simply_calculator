@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
 import 'package:simply_calculator/screen/widgets/dialog/app_dialog.dart';
@@ -109,7 +111,8 @@ class FeatureTipsManager {
     final prefs = await SharedPreferences.getInstance();
     final lastSkipTimestamp = prefs.getInt(_lastSkipTimestampKey) ?? 0;
     final now = DateTime.now().millisecondsSinceEpoch;
-    final skipDurationMs = _skipDurationDays * 24 * 60 * 60 * 1000; // 7 days in ms
+    final skipDurationMs =
+        _skipDurationDays * 24 * 60 * 60 * 1000; // 7 days in ms
 
     if (lastSkipTimestamp > 0 && now - lastSkipTimestamp < skipDurationMs) {
       // We're still in the skip period
@@ -123,14 +126,20 @@ class FeatureTipsManager {
 
   // Show a random tip dialog if appropriate
   static Future<void> maybeShowRandomTip(BuildContext context) async {
-    if (!await shouldShowTip()) {
-      return;
-    }
+    final firstTimeOpenApp = getIt<AppCubit>().state.isFirstOpenApp;
 
-    final tip = await getRandomUnseenTip();
-    if (tip != null) {
-      _tipsShownThisSession++;
-      await showTipDialog(context, tip);
+    if (firstTimeOpenApp) {
+      await showTipDialog(context, _allTips.first);
+      return;
+    } else {
+      if (!await shouldShowTip()) {
+        return;
+      }
+
+      final tip = await getRandomUnseenTip();
+      if (tip != null) {
+        _tipsShownThisSession++;
+      }
     }
   }
 

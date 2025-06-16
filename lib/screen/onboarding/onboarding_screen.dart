@@ -3,9 +3,7 @@ import 'dart:math';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
-import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/gen/assets.gen.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -188,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   void _completeOnboarding() {
     // Navigate to main calculator screen
-    context.pushRoute(const CalculatorRoute());
+    context.router.replace(const CalculatorRoute());
   }
 
   @override

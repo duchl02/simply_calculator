@@ -24,7 +24,7 @@ class AppRepositoryImpl implements AppRepository {
   }
 
   @override
-  String getLanguage() {
+  String? getLanguage() {
     return localDataSource.getLanguage();
   }
 

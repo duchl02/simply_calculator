@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/core/extensions/string_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/data/hive/calc_local_data.dart';
 import 'package:simply_calculator/di/di.dart';
@@ -119,6 +120,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () async {
+              AnalyticsUtil.logEvent(EventKeyConst.historyButtonPressed);
               final List<CalcHistoryModel> historyList =
                   await getIt<CalcLocalData>().getAll();
               if (context.mounted) {
@@ -216,6 +218,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   // Changing calculator mode
                   ElevatedButton.icon(
                     onPressed: () {
+                      AnalyticsUtil.logEvent(EventKeyConst.calculatorModeToggled);
                       setState(() {
                         isSimple = !isSimple;
                       });
@@ -266,7 +269,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   // Degree/Radian toggle
                   if (!isSimple)
                     ElevatedButton(
-                      onPressed: _toggleDegreeRadianMode,
+                      onPressed: () {
+                        AnalyticsUtil.logEvent(EventKeyConst.degreeRadianToggled);
+                        _toggleDegreeRadianMode();
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -283,6 +289,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   // Backspace button
                   AppFilledButton(
                     onTap: () {
+                      AnalyticsUtil.logEvent(EventKeyConst.backspaceButtonPressed);
                       setState(() {
                         // Reset nếu đang ở trạng thái kết thúc phép tính
                         if (isEndCalculation) {
@@ -409,7 +416,32 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   void onButtonPressed(String btnText) {
     setState(() {
-      // Kiểm tra xem btnText có phải là toán tử không
+      if ('0123456789'.contains(btnText)) {
+        AnalyticsUtil.logEvent(EventKeyConst.numberButtonPressed);
+      } else if (['+', '-', '×', '÷', '^', '%'].contains(btnText)) {
+        AnalyticsUtil.logEvent(EventKeyConst.operatorButtonPressed);
+      } else if (btnText == '=') {
+        AnalyticsUtil.logEvent(EventKeyConst.equalButtonPressed);
+      } else if (btnText == 'C') {
+        AnalyticsUtil.logEvent(EventKeyConst.clearButtonPressed);
+      } else if (['(', ')'].contains(btnText)) {
+        AnalyticsUtil.logEvent(EventKeyConst.parenthesisButtonPressed);
+      } else if (btnText == '.') {
+        AnalyticsUtil.logEvent(EventKeyConst.decimalPointPressed);
+      } else if ([
+        'sin',
+        'cos',
+        'tan',
+        'log',
+        'ln',
+        '√',
+        '∛',
+        '!',
+        'φ',
+      ].contains(btnText)) {
+        AnalyticsUtil.logEvent(EventKeyConst.functionButtonPressed);
+      }
+
       bool isOperator = ['+', '-', '×', '÷', '^', '%'].contains(btnText);
       bool isMathFunction = [
         'sin',

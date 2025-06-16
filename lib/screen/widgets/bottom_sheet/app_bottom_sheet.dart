@@ -4,6 +4,7 @@ import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/core/extensions/num_extension.dart';
 import 'package:simply_calculator/core/extensions/theme_extension.dart';
+import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -191,6 +192,7 @@ class AppBottomSheet {
 
             return InkWell(
               onTap: () {
+                AnalyticsUtil.logEvent('set_font_family', {'fontFamily': font});
                 appCubit.setFontFamily(font);
                 Navigator.pop(context);
               },
@@ -371,6 +373,9 @@ class AppBottomSheet {
 
             return InkWell(
               onTap: () {
+                AnalyticsUtil.logEvent('set_default_calculator', {
+                  'routeName': screen['route'] as String,
+                });
                 final String route = screen['route'] as String;
                 appCubit.setDefaultCalculator(route);
                 Navigator.pop(context);

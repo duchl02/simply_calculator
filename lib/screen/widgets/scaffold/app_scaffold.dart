@@ -29,31 +29,36 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:
-          appBar ??
-          AppBar(
-            backgroundColor: backgroundColor ?? context.colorScheme.surface,
-            title:
-                title != null
-                    ? Text(title!, style: context.textTheme.titleLarge)
-                    : null,
-            actions: [
-              if (hasFeedbackButton)
-                IconButton(
-                  onPressed: () {
-                    context.pushRoute(const FeedbackRoute());
-                  },
-                  icon: const Icon(Icons.bug_report_rounded),
-                ),
-              ...actions ?? [],
-            ],
-          ),
-      body: body,
-      drawer: drawer,
-      persistentFooterButtons:
-          persistentFooterButtons != null ? [persistentFooterButtons!] : null,
-      backgroundColor: backgroundColor ?? context.colorScheme.surface,
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar:
+            appBar ??
+            AppBar(
+              backgroundColor: backgroundColor ?? context.colorScheme.surface,
+              title:
+                  title != null
+                      ? Text(title!, style: context.textTheme.titleLarge)
+                      : null,
+              actions: [
+                if (hasFeedbackButton)
+                  IconButton(
+                    onPressed: () {
+                      context.pushRoute(const FeedbackRoute());
+                    },
+                    icon: const Icon(Icons.bug_report_rounded),
+                  ),
+                ...actions ?? [],
+              ],
+            ),
+        body: body,
+        drawer: drawer,
+        persistentFooterButtons:
+            persistentFooterButtons != null ? [persistentFooterButtons!] : null,
+        backgroundColor: backgroundColor ?? context.colorScheme.surface,
+      ),
     );
   }
 }

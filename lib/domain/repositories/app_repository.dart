@@ -5,7 +5,7 @@ abstract class AppRepository {
   int? getFirstTimeOpenApp();
 
   Future<void> setLanguage(String language);
-  String getLanguage();
+  String? getLanguage();
 
   Future<void> setTheme(String theme);
   String? getTheme();

@@ -8,6 +8,7 @@ class AppState extends Equatable {
   final ThemeMode? themeMode;
   final String? defaultCalculator;
   final List<FavoriteCalcItem> favorites;
+  final bool isFirstOpenApp;
 
   const AppState({
     this.language = 'en',
@@ -17,6 +18,7 @@ class AppState extends Equatable {
     this.fontFamily,
     this.favorites = const [],
     this.defaultCalculator,
+    this.isFirstOpenApp = false,
   });
 
   AppState copyWith({
@@ -27,8 +29,10 @@ class AppState extends Equatable {
     ThemeMode? themeMode,
     List<FavoriteCalcItem>? favorites,
     String? defaultCalculator,
+    bool? isFirstOpenApp,
   }) {
     return AppState(
+      isFirstOpenApp: isFirstOpenApp ?? this.isFirstOpenApp,
       language: language ?? this.language,
       theme: theme ?? this.theme,
       isDarkMode: isDarkMode ?? this.isDarkMode,
@@ -48,5 +52,6 @@ class AppState extends Equatable {
     themeMode,
     favorites,
     defaultCalculator,
+    isFirstOpenApp,
   ];
 }

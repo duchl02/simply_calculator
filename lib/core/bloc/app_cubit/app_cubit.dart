@@ -3,10 +3,11 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:simply_calculator/constants/app_const.dart';
+import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/core/style/flex_theme/flex_scheme.dart';
+import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
-import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
 
 part 'app_state.dart';
 
@@ -26,6 +27,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void setLanguage(String language) {
+    AnalyticsUtil.logEvent('change_language', {'language': language});
     final appLocale = AppLocale.values.firstWhere(
       (element) => element.languageCode == language,
       orElse: () => AppLocale.en,
@@ -35,17 +37,25 @@ class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(language: appLocale.languageCode));
   }
 
+  void setFirstOpenApp() {
+    appRepository.setFirstTimeOpenApp(DateTime.now().millisecondsSinceEpoch);
+    emit(state.copyWith(isFirstOpenApp: true));
+  }
+
   void setTheme(FlexScheme theme) {
+    AnalyticsUtil.logEvent('change_theme', {'theme': theme.name});
     appRepository.setTheme(theme.name);
     emit(state.copyWith(theme: theme));
   }
 
   void setDarkMode(bool isDarkMode) {
+    AnalyticsUtil.logEvent('change_dark_mode', {'isDarkMode': isDarkMode});
     appRepository.setDarkMode(isDarkMode);
     emit(state.copyWith(isDarkMode: isDarkMode));
   }
 
   void setFontFamily(String fontFamily) {
+    AnalyticsUtil.logEvent('change_font_family', {'fontFamily': fontFamily});
     appRepository.setFontFamily(fontFamily);
     emit(state.copyWith(fontFamily: fontFamily));
   }
@@ -64,7 +74,9 @@ class AppCubit extends Cubit<AppState> {
               : WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                   Brightness.light
               ? ThemeMode.light
-              : ThemeMode.system;
+              : ThemeMode.light;
+
+      /// Default to light mode if system brightness is not dark
     } else {
       isDarkMode = isDarkModeLocal;
     }
@@ -73,6 +85,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void setThemeMode(ThemeMode themeMode) {
+    AnalyticsUtil.logEvent('change_theme_mode', {'themeMode': themeMode.name});
     final brightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
     final isDarkMode =
@@ -82,12 +95,22 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<void> _initLanguage() async {
-    final language = appRepository.getLanguage();
-    final appLocale = AppLocale.values.firstWhere(
-      (element) => element.languageCode == language,
-      orElse: () => AppLocale.en,
-    );
+    final storedLanguage = appRepository.getLanguage();
+
+    final AppLocale appLocale =
+        storedLanguage != null
+            ? AppLocale.values.firstWhere(
+              (element) => element.languageCode == storedLanguage,
+              orElse: () => AppLocale.en,
+            )
+            : LocaleSettings.currentLocale;
+
     await LocaleSettings.setLocale(appLocale);
+
+    if (storedLanguage == null) {
+      await appRepository.setLanguage(appLocale.languageCode);
+    }
+
     emit(state.copyWith(language: appLocale.languageCode));
   }
 
@@ -111,6 +134,9 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void toggleFavorite(FavoriteCalcItem item) {
+    AnalyticsUtil.logEvent('toggle_favorite_calculator', {
+      'routeName': item.routeName,
+    });
     final currentFavorites = List<FavoriteCalcItem>.from(state.favorites);
     final index = currentFavorites.indexWhere(
       (fav) => fav.routeName == item.routeName,
@@ -133,7 +159,9 @@ class AppCubit extends Cubit<AppState> {
     final defaultCalculator = appRepository.getDefaultCalculator();
     emit(state.copyWith(defaultCalculator: defaultCalculator));
   }
+
   void setDefaultCalculator(String routeName) {
+    AnalyticsUtil.logEvent('set_default_calculator', {'routeName': routeName});
     emit(state.copyWith(defaultCalculator: routeName));
     appRepository.setDefaultCalculator(routeName);
   }

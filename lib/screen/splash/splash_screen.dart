@@ -22,10 +22,8 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final isFirstOpenApp = getIt<AppRepository>().getFirstTimeOpenApp();
       if (isFirstOpenApp == null) {
+        appCubit.setFirstOpenApp();
         AutoRouter.of(context).replace(const OnboardingRoute());
-        getIt<AppRepository>().setFirstTimeOpenApp(
-          DateTime.now().millisecondsSinceEpoch,
-        );
       } else {
         AutoRouter.of(context).replace(const CalculatorRoute());
       }

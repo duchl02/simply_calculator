@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
@@ -143,6 +144,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
   ) {
     return InkWell(
       onTap: () {
+        AnalyticsUtil.logEvent(EventKeyConst.unitCategorySelected, {
+          'category': category.name,
+        });
         context.read<UnitConverterCubit>().changeCategory(category);
       },
       borderRadius: BorderRadius.circular(16.r),
@@ -262,6 +266,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                 ),
                 suffixIcon: IconButton(
                   onPressed: () {
+                    AnalyticsUtil.logEvent(EventKeyConst.unitInputCleared);
                     _inputController.clear();
                     context.read<UnitConverterCubit>().updateInputValue('');
                   },
@@ -301,6 +306,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
         ),
         child: IconButton(
           onPressed: () {
+            AnalyticsUtil.logEvent(EventKeyConst.unitSwapButtonPressed);
             context.read<UnitConverterCubit>().swapUnits();
           },
           icon: Icon(
@@ -402,6 +408,17 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             }).toList(),
         onChanged: (UnitItem? newValue) {
           if (newValue != null) {
+            // Determine if this is the "from" or "to" dropdown
+            if (selectedUnit ==
+                context.read<UnitConverterCubit>().state.fromUnit) {
+              AnalyticsUtil.logEvent(EventKeyConst.unitFromChanged, {
+                'from_unit': newValue.shortName,
+              });
+            } else {
+              AnalyticsUtil.logEvent(EventKeyConst.unitToChanged, {
+                'to_unit': newValue.shortName,
+              });
+            }
             onChanged(newValue);
           }
         },
@@ -585,6 +602,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             SizedBox(height: 16.h),
             OutlinedButton.icon(
               onPressed: () {
+                AnalyticsUtil.logEvent(EventKeyConst.unitResultCopied);
                 final textToCopy =
                     '${state.inputValue} ${state.fromUnit.shortName} = $formattedResult ${state.toUnit.shortName}';
                 Clipboard.setData(ClipboardData(text: textToCopy));
@@ -664,6 +682,9 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
 
                 return InkWell(
                   onTap: () {
+                    AnalyticsUtil.logEvent(
+                      EventKeyConst.unitCommonConversionSelected,
+                    );
                     // Khi người dùng nhấp vào, cập nhật giá trị đầu vào
                     context.read<UnitConverterCubit>().updateInputValue(
                       value.toString(),

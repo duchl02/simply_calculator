@@ -38,6 +38,8 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                 theme != FlexScheme.shadGray &&
                 theme != FlexScheme.shadStone &&
                 theme != FlexScheme.shadRose &&
+                theme != FlexScheme.material &&
+                theme != FlexScheme.materialHc &&
                 theme != FlexScheme.shadViolet,
           )
           .toList();

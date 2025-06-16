@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
@@ -27,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     FeatureTipsManager.markFeatureAsUsed(SettingsRoute.name);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -187,6 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.check_for_updates,
                   subtitle: t.check_for_new_version,
                   onTap: () {
+                    AnalyticsUtil.logEvent('settings_check_for_updates');
                     _showUpdateChecker(context);
                   },
                 ),
@@ -197,6 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.privacy_policy,
                   subtitle: t.read_our_privacy_policy,
                   onTap: () {
+                    AnalyticsUtil.logEvent('settings_privacy_policy');
                     launchUrl(
                       Uri.parse(AppConst.privacyPolicy),
                       mode: LaunchMode.externalApplication,
@@ -210,6 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.feedback,
                   subtitle: t.send_us_your_feedback,
                   onTap: () {
+                    AnalyticsUtil.logEvent('settings_feedback');
                     context.pushRoute(const FeedbackRoute());
                   },
                 ),
