@@ -202,6 +202,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
     return PageView.builder(
       controller: _pageController,
       itemCount: availableThemes.length,
+      physics: const NeverScrollableScrollPhysics(),
       onPageChanged: (index) {
         // setState(() {
         //   _currentIndex = index;

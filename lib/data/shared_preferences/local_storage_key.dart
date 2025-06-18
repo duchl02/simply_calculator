@@ -6,4 +6,5 @@ class LocalStorageKey {
   static const String fontFamily = 'fontFamily';
   static const String favoriteCalculator = 'favoriteCalculator';
   static const String defaultCalculator = 'defaultCalculator';
+  static const String notificationsEnabled = 'notificationsEnabled';
 }

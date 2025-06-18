@@ -203,7 +203,7 @@ class AppBottomSheet {
                 decoration: BoxDecoration(
                   color:
                       isSelected
-                          ? colorScheme.primaryContainer
+                          ? colorScheme.primaryContainer.withOpacity(0.3)
                           : colorScheme.surfaceVariant.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
                   border:
@@ -282,6 +282,7 @@ class AppBottomSheet {
       LoanCalculatorRoute.name: t.loan_calculator,
       GpaCalculatorRoute.name: t.gpa_calculator,
       AgeCalculatorRoute.name: t.age_calculator,
+      CurrencyConverterRoute.name: t.currency_converter,
     };
 
     return screenNames[routeName] ?? t.standard_calculator;
@@ -354,6 +355,12 @@ class AppBottomSheet {
         'icon': Icons.cake_outlined,
         'color': Colors.red,
       },
+      {
+        'name': t.currency_converter,
+        'route': CurrencyConverterRoute.name,
+        'icon': Icons.currency_exchange_outlined,
+        'color': Colors.teal,
+      },
     ];
 
     AppBottomSheet.show(
@@ -387,8 +394,8 @@ class AppBottomSheet {
                 decoration: BoxDecoration(
                   color:
                       isSelected
-                          ? colorScheme.primaryContainer
-                          : colorScheme.surfaceVariant.withOpacity(0.5),
+                          ? colorScheme.primaryContainer.withOpacity(0.3)
+                          : colorScheme.surfaceVariant.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border:
                       isSelected

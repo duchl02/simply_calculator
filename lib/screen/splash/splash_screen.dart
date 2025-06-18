@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
+import 'package:simply_calculator/core/services/notification_service.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';

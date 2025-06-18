@@ -6,6 +6,7 @@ import 'package:simply_calculator/constants/app_const.dart';
 import 'package:simply_calculator/core/bloc/app_cubit/app_cubit.dart';
 import 'package:simply_calculator/core/firebase/analytics/analytics_util.dart';
 import 'package:simply_calculator/core/managers/feature_tips_manager.dart';
+import 'package:simply_calculator/core/services/notification_service.dart';
 import 'package:simply_calculator/di/di.dart';
 import 'package:simply_calculator/i18n/strings.g.dart';
 import 'package:simply_calculator/router/app_router.gr.dart';
@@ -173,6 +174,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () {
                         AppBottomSheet.showDefaultScreenSelector(context);
                       },
+                    );
+                  },
+                ),
+              ]),
+
+              SizedBox(height: 16.h),
+
+              // Notifications Section
+              _buildSectionTitle(t.notifications, Icons.notifications_outlined),
+              _buildCard([
+                // Notifications toggle
+                BlocBuilder<AppCubit, AppState>(
+                  builder: (context, state) {
+                    return _buildSettingItem(
+                      icon: Icons.notifications_active_outlined,
+                      title: t.enable_notifications,
+                      subtitle: t.notification_description,
+                      trailing: Switch.adaptive(
+                        value: state.notificationsEnabled ?? false,
+                        onChanged: (value) {
+                          AnalyticsUtil.logEvent(
+                            value
+                                ? 'notifications_enabled'
+                                : 'notifications_disabled',
+                          );
+                          context.read<AppCubit>().setNotificationsEnabled(
+                            value,
+                          );
+                          NotificationService().setNotificationsEnabled(value);
+                        },
+                      ),
                     );
                   },
                 ),

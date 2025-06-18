@@ -4,8 +4,10 @@ class EventKeyConst {
   // History screen events
   static const String historyItemToggled = 'history_item_toggled';
   static const String historyItemUsed = 'history_item_used';
-  static const String historySelectionModeEntered = 'history_selection_mode_entered';
-  static const String historySelectionModeExited = 'history_selection_mode_exited';
+  static const String historySelectionModeEntered =
+      'history_selection_mode_entered';
+  static const String historySelectionModeExited =
+      'history_selection_mode_exited';
   static const String historyItemsDeleted = 'history_items_deleted';
   static const String historyClearDialogShown = 'history_clear_dialog_shown';
   static const String historyCleared = 'history_cleared';
@@ -30,5 +32,27 @@ class EventKeyConst {
   static const String unitSwapButtonPressed = 'unit_swap_button_pressed';
   static const String unitInputCleared = 'unit_input_cleared';
   static const String unitResultCopied = 'unit_result_copied';
-  static const String unitCommonConversionSelected = 'unit_common_conversion_selected';
+  static const String unitCommonConversionSelected =
+      'unit_common_conversion_selected';
+
+  // Add to event_key_const.dart
+  // Currency Converter Events
+  static const String currencyFromChanged = 'currency_from_changed';
+  static const String currencyToChanged = 'currency_to_changed';
+  static const String currencySwapButtonPressed =
+      'currency_swap_button_pressed';
+  static const String currencyInputCleared = 'currency_input_cleared';
+  static const String currencyResultCopied = 'currency_result_copied';
+  static const String currencyConverted = 'currency_converted';
+  static const String currencyConversionError = 'currency_conversion_error';
+  static const String currencyRefreshPressed = 'currency_refresh_pressed';
+
+  // Notification events
+  static const String notificationTapped = 'notification_tapped';
+  static const String notificationPermissionGranted =
+      'notification_permission_granted';
+  static const String notificationPermissionDenied =
+      'notification_permission_denied';
+  static const String notificationsEnabled = 'notifications_enabled';
+  static const String notificationsDisabled = 'notifications_disabled';
 }

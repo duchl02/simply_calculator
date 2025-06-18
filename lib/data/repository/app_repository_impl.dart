@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:simply_calculator/data/shared_preferences/app_local_data_source.dart';
-import 'package:simply_calculator/domain/repositories/app_repository.dart';
 import 'package:simply_calculator/domain/entities/favorite_calc_item.dart';
+import 'package:simply_calculator/domain/repositories/app_repository.dart';
 
 @Injectable(as: AppRepository)
 class AppRepositoryImpl implements AppRepository {
@@ -76,5 +76,15 @@ class AppRepositoryImpl implements AppRepository {
   @override
   String? getDefaultCalculator() {
     return localDataSource.getDefaultCalculator();
+  }
+
+  @override
+  bool? getNotificationsEnabled() {
+    return localDataSource.getNotificationsEnabled();
+  }
+
+  @override
+  Future<void> setNotificationsEnabled(bool enabled) {
+    return localDataSource.setNotificationsEnabled(enabled);
   }
 }

@@ -457,5 +457,22 @@
     "tip_loan_calculator": "Planning a big purchase? Our Loan Calculator will help you understand monthly payments and total costs.",
     "tip_theme_customization": "You can customize the app's appearance with different themes and dark mode in Settings.",
     "tip_history_feature": "Access your calculation history anytime - Simply Calculator saves your recent calculations automatically.",
-    "tip_start_open": "You can set the app to open directly to your favorite calculator or converter for quick access."
+    "tip_start_open": "You can set the app to open directly to your favorite calculator or converter for quick access.",
+    "refresh_rates": "Refresh Rates",
+    "last_updated": "Last updated",
+    "failed_to_load_exchange_rate": "Failed to load exchange rate. This result may not be accurate.",
+    "search_currency": "Search currency...",
+    "no_results_found": "No matching currencies found",
+    "reminder": "Reminder",
+    "have_calculations_to_do": "Have any calculations to do today?",
+    "currency_rates_updated": "Currency rates updated",
+    "check_latest_exchange_rates": "Check the latest exchange rates in our app",
+    "discover_more_features": "Discover more features",
+    "try_scientific_calculator": "Try our scientific calculator for complex calculations",
+    "try_unit_converter": "Need to convert units? Try our unit converter!",
+    "try_currency_converter": "Travel often? Use our currency converter!",
+    "exchange_rate_changed": "Exchange rate changed",
+    "notifications": "Notifications",
+    "enable_notifications": "Enable notifications",
+    "notification_description": "Get reminders and updates about new features"
 }

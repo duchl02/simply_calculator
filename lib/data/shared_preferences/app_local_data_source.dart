@@ -99,4 +99,15 @@ class AppLocalDataSource {
   String? getDefaultCalculator() {
     return sharedPreferences.getString(LocalStorageKey.defaultCalculator);
   }
+
+  bool? getNotificationsEnabled() {
+    return sharedPreferences.getBool(LocalStorageKey.notificationsEnabled);
+  }
+
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    await sharedPreferences.setBool(
+      LocalStorageKey.notificationsEnabled,
+      enabled,
+    );
+  }
 }

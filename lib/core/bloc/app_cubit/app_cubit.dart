@@ -24,6 +24,7 @@ class AppCubit extends Cubit<AppState> {
     _initDarkMode();
     _initFavorites();
     _initDefaultCalculator();
+    _initNotifications();
   }
 
   void setLanguage(String language) {
@@ -49,7 +50,9 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void setDarkMode(bool isDarkMode) {
-    AnalyticsUtil.logEvent('change_dark_mode', {'isDarkMode': isDarkMode});
+    AnalyticsUtil.logEvent('change_dark_mode', {
+      'isDarkMode': isDarkMode.toString(),
+    });
     appRepository.setDarkMode(isDarkMode);
     emit(state.copyWith(isDarkMode: isDarkMode));
   }
@@ -174,5 +177,15 @@ class AppCubit extends Cubit<AppState> {
       }
     }
     return AppLocale.en.name;
+  }
+
+  void setNotificationsEnabled(bool enabled) {
+    appRepository.setNotificationsEnabled(enabled);
+    emit(state.copyWith(notificationsEnabled: enabled));
+  }
+
+  Future<void> _initNotifications() async {
+    final enabled = appRepository.getNotificationsEnabled();
+    emit(state.copyWith(notificationsEnabled: enabled ?? true));
   }
 }

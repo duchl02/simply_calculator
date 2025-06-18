@@ -23,7 +23,7 @@ class AppScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget? drawer;
   final Widget? persistentFooterButtons;
-  final Widget? resizeToAvoidBottomInset;
+  final bool? resizeToAvoidBottomInset;
   final Color? backgroundColor;
   final bool hasFeedbackButton;
 
@@ -34,6 +34,7 @@ class AppScaffold extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
         appBar:
             appBar ??
             AppBar(

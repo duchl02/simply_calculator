@@ -18,6 +18,6 @@ class LogX {
   }
 
   static void logInfo({required Object message, StackTrace? stackTrace}) {
-    logger.t('AppLog: ${message.toString()} ${stackTrace.toString()}');
+    logger.t('AppLog: ${message.toString()} ${stackTrace != null ? stackTrace.toString() : ''}');
   }
 }

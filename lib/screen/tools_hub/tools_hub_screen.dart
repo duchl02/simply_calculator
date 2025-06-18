@@ -41,6 +41,15 @@ class ToolsHubScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 // Discount Calculator
                 CalculatorCard(
+                  title: t.currency_converter,
+                  description: t.convert_between_currencies,
+                  icon: Icons.currency_exchange,
+                  iconColor: Colors.green,
+                  onTap: () {
+                    context.pushRoute(const CurrencyConverterRoute());
+                  },
+                ),
+                CalculatorCard(
                   title: t.discount_calculator,
                   description: t.calculate_discounts_and_sales,
                   icon: Icons.percent,

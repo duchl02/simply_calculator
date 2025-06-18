@@ -21,4 +21,7 @@ abstract class AppRepository {
 
   Future<void> setDefaultCalculator(String defaultCalculator);
   String? getDefaultCalculator();
+
+  bool? getNotificationsEnabled();
+  Future<void> setNotificationsEnabled(bool enabled);
 }

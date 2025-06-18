@@ -57,7 +57,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return AppScaffold(
+      resizeToAvoidBottomInset: false,
       title: t.feedback,
+      hasFeedbackButton: false,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
